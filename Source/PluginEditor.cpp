@@ -13,7 +13,7 @@ using namespace wh::colours;
 namespace
 {
 constexpr int kDesignW = 920;
-constexpr int kDesignH = 648;
+constexpr int kDesignH = 676;
 constexpr float kRotStart = juce::MathConstants<float>::pi * 1.20f;
 constexpr float kRotEnd   = juce::MathConstants<float>::pi * 2.80f;
 } // namespace
@@ -64,9 +64,13 @@ BigDial::BigDial (std::function<int()> bankProvider) : getBank (std::move (bankP
 void BigDial::paint (juce::Graphics& g)
 {
     auto bounds = getLocalBounds().toFloat();
-    const float size = juce::jmin (bounds.getWidth(), bounds.getHeight()) - 46.0f;
+    // Work backwards from the bounds: the frequency ring sits at 1.34 x radius
+    // plus half a text box, and it must not clip.
+    const float half = juce::jmin (bounds.getWidth(), bounds.getHeight()) * 0.5f;
+    const float radiusFit = (half - 16.0f) / 1.42f;
+    const float size = radiusFit * 2.0f;
     auto area = juce::Rectangle<float> (size, size)
-                    .withCentre ({ bounds.getCentreX(), bounds.getCentreY() + 2.0f });
+                    .withCentre ({ bounds.getCentreX(), bounds.getCentreY() });
 
     const auto centre = area.getCentre();
     const float radius = size * 0.5f;
@@ -84,8 +88,8 @@ void BigDial::paint (juce::Graphics& g)
 
         const bool selected = (juce::roundToInt (getValue()) - 1) == i;
 
-        juce::Line<float> tick (centre.translated (ca * radius * 1.10f, sa * radius * 1.10f),
-                                centre.translated (ca * radius * 1.22f, sa * radius * 1.22f));
+        juce::Line<float> tick (centre.translated (ca * radius * 1.06f, sa * radius * 1.06f),
+                                centre.translated (ca * radius * 1.17f, sa * radius * 1.17f));
         g.setColour (selected ? redBright : juce::Colour (0xff453c35));
         g.drawLine (tick, selected ? 2.6f : 1.6f);
 
@@ -94,7 +98,7 @@ void BigDial::paint (juce::Graphics& g)
                                       ? juce::String (hz / 1000.0f, 1) + "k"
                                       : juce::String (juce::roundToInt (hz));
 
-        auto textArea = juce::Rectangle<float> (40.0f, 13.0f)
+        auto textArea = juce::Rectangle<float> (34.0f, 13.0f)
                             .withCentre (centre.translated (ca * radius * 1.42f,
                                                             sa * radius * 1.42f));
         g.setColour (selected ? cream : creamDim.withAlpha (0.75f));
@@ -238,7 +242,7 @@ WaterhouseEditor::WaterhouseEditor (WaterhouseProcessor& p)
 
     content.addAndMakeVisible (cornerReadout);
     cornerReadout.setJustificationType (juce::Justification::centredRight);
-    cornerReadout.setFont (WaterhouseLNF::faceFont (11.0f));
+    cornerReadout.setFont (WaterhouseLNF::faceFont (12.5f));
     cornerReadout.setColour (juce::Label::textColourId, creamDim);
 
     content.setSize (kDesignW, kDesignH);
@@ -273,8 +277,10 @@ void WaterhouseEditor::timerCallback()
 
     bigDial->repaint();
 
-    const juce::String pos = postButton.getToggleState() ? "post" : "pre";
-    cornerReadout.setText ("filter " + pos + " \u00b7 18 dB/oct \u00b7 2x oversampled",
+    const juce::String chain = postButton.getToggleState()
+                                   ? "IN  >  ECHO  >  SPRING  >  FILTER  >  OUT"
+                                   : "IN  >  FILTER  >  ECHO  >  SPRING  >  OUT";
+    cornerReadout.setText (chain + "\n18 dB per octave  /  2x oversampled",
                            juce::dontSendNotification);
 
     if (presetBox.getSelectedId() - 1 != proc.getCurrentProgram())
@@ -301,10 +307,10 @@ void WaterhouseEditor::layoutContent()
     full.removeFromTop (6);
 
     // ---- Filter panel -------------------------------------------------------
-    auto filterPanel = full.removeFromTop (250);
-    auto fp = filterPanel.reduced (16, 8).withTrimmedTop (18);
+    auto filterPanel = full.removeFromTop (252);
+    auto fp = filterPanel.reduced (22, 8).withTrimmedTop (20);
 
-    auto dialArea = fp.removeFromLeft (238);
+    auto dialArea = fp.removeFromLeft (250);
     bigDial->setBounds (dialArea.reduced (2));
 
     fp.removeFromLeft (10);
@@ -316,7 +322,6 @@ void WaterhouseEditor::layoutContent()
     typeButton.setBounds (filterSwitches.removeFromLeft (104).withHeight (24));
     filterSwitches.removeFromLeft (10);
     postButton.setBounds (filterSwitches.removeFromLeft (104).withHeight (24));
-    cornerReadout.setBounds (filterSwitches.withHeight (24));
 
     {
         KnobBox* row[] = { impedance.get(), magnetism.get(), character.get(),
@@ -330,8 +335,8 @@ void WaterhouseEditor::layoutContent()
     full.removeFromTop (10);
 
     // ---- Echo panel ---------------------------------------------------------
-    auto echoPanel = full.removeFromTop (196);
-    auto ep = echoPanel.reduced (16, 8).withTrimmedTop (18);
+    auto echoPanel = full.removeFromTop (192);
+    auto ep = echoPanel.reduced (22, 8).withTrimmedTop (20);
 
     auto echoSwitches = ep.removeFromBottom (30);
     echoOnButton.setBounds (echoSwitches.removeFromLeft (104).withHeight (24));
@@ -355,7 +360,7 @@ void WaterhouseEditor::layoutContent()
 
     // ---- Spring panel -------------------------------------------------------
     auto springPanel = full;
-    auto sp = springPanel.reduced (16, 8).withTrimmedTop (18);
+    auto sp = springPanel.reduced (22, 8).withTrimmedTop (20);
 
     springOnButton.setBounds (sp.removeFromLeft (104).withSizeKeepingCentre (104, 24));
     sp.removeFromLeft (20);
@@ -363,8 +368,10 @@ void WaterhouseEditor::layoutContent()
     {
         KnobBox* row[] = { springAmt.get(), springDecay.get(), springDrive.get() };
         for (int i = 0; i < 3; ++i)
-            row[i]->setBounds (sp.removeFromLeft (110).reduced (4, 2));
+            row[i]->setBounds (sp.removeFromLeft (104).reduced (4, 0));
     }
+
+    cornerReadout.setBounds (sp.reduced (16, 8));
 }
 
 void WaterhouseEditor::resized()
@@ -404,14 +411,14 @@ void WaterhouseEditor::paint (juce::Graphics& g)
 
     g.setColour (red);
     g.setFont (WaterhouseLNF::faceFont (11.5f, true));
-    g.drawText ("DUB STATION  \u00b7  PASSIVE FILTER / TAPE ECHO / SPRING TANK",
+    g.drawText ("DUB STATION   -   PASSIVE FILTER / TAPE ECHO / SPRING TANK",
                 header.withTrimmedTop (32).withHeight (18), juce::Justification::topLeft, false);
 
     full.removeFromTop (6);
 
-    WaterhouseLNF::paintPanel (g, full.removeFromTop (250).toFloat(), "Filter  \u2014  Big Dial", red);
+    WaterhouseLNF::paintPanel (g, full.removeFromTop (252).toFloat(), "Filter   -   Big Dial", red);
     full.removeFromTop (10);
-    WaterhouseLNF::paintPanel (g, full.removeFromTop (196).toFloat(), "Echo  \u2014  Two Track", brass);
+    WaterhouseLNF::paintPanel (g, full.removeFromTop (192).toFloat(), "Echo   -   Two Track", brass);
     full.removeFromTop (10);
-    WaterhouseLNF::paintPanel (g, full.toFloat(), "Spring  \u2014  Tank", green);
+    WaterhouseLNF::paintPanel (g, full.toFloat(), "Spring   -   Tank", green);
 }

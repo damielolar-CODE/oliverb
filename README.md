@@ -4,6 +4,8 @@
 
 VST3 / AU / Standalone. macOS, Windows, Linux. C++17 + JUCE 8.
 
+![Waterhouse interface](docs/interface.png)
+
 ---
 
 ## What this is
