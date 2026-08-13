@@ -56,9 +56,10 @@ jobs:
         run: cmake --build build --config Release --parallel 3
 
       - name: Run DSP tests
+        shell: bash
         run: |
           cmake --build build --config Release --target dsp_test --parallel 3
-          ./build/dsp_test || ./build/Release/dsp_test
+          if [ -x build/dsp_test ]; then build/dsp_test; else build/Release/dsp_test; fi
 
       - name: Collect binaries
         shell: bash
