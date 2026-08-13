@@ -2,7 +2,7 @@
 # Push this folder to a fresh GitHub repo.
 #
 #   1. Make an EMPTY repo on github.com (no README, no .gitignore, no licence)
-#   2. ./scripts/push.sh https://github.com/YOUR-NAME/waterhouse.git
+#   2. ./scripts/push.sh https://github.com/YOUR-NAME/oliverb.git
 #
 # After it finishes, open the repo's Actions tab — the plug-ins build themselves.
 set -euo pipefail
@@ -16,7 +16,7 @@ cd "$(dirname "$0")/.."
 
 [ -d .git ] || git init
 git add -A
-git commit -m "Waterhouse: passive dub filter, tape echo and spring tank" || true
+git commit -m "OLIVERB: passive dub filter, tape echo and spring tank" || true
 git branch -M main
 git remote remove origin 2>/dev/null || true
 git remote add origin "$1"

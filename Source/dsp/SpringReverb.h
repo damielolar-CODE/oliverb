@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — SpringReverb.h
+//  OLIVERB — SpringReverb.h
 //
 //  A two-tank spring reverb, of the sort bolted into the back of a 1960s
 //  console and then "modified" (read: run hotter than the designer intended).

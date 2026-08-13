@@ -3,14 +3,14 @@
 using namespace wh::colours;
 
 // =============================================================================
-juce::Font WaterhouseLNF::faceFont (float height, bool bold)
+juce::Font OliverbLNF::faceFont (float height, bool bold)
 {
     return juce::Font (juce::FontOptions (juce::Font::getDefaultSansSerifFontName(),
                                           height,
                                           bold ? juce::Font::bold : juce::Font::plain));
 }
 
-WaterhouseLNF::WaterhouseLNF()
+OliverbLNF::OliverbLNF()
 {
     setColour (juce::Slider::textBoxTextColourId, cream);
     setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
@@ -32,14 +32,14 @@ WaterhouseLNF::WaterhouseLNF()
     setColour (juce::TooltipWindow::textColourId, cream);
 }
 
-juce::Font WaterhouseLNF::getLabelFont (juce::Label& l) { return faceFont (l.getFont().getHeight()); }
-juce::Font WaterhouseLNF::getComboBoxFont (juce::ComboBox&) { return faceFont (13.0f); }
-juce::Font WaterhouseLNF::getTextButtonFont (juce::TextButton&, int h)
+juce::Font OliverbLNF::getLabelFont (juce::Label& l) { return faceFont (l.getFont().getHeight()); }
+juce::Font OliverbLNF::getComboBoxFont (juce::ComboBox&) { return faceFont (13.0f); }
+juce::Font OliverbLNF::getTextButtonFont (juce::TextButton&, int h)
 {
     return faceFont (juce::jmin (14.0f, h * 0.58f), true);
 }
 
-void WaterhouseLNF::drawLabel (juce::Graphics& g, juce::Label& label)
+void OliverbLNF::drawLabel (juce::Graphics& g, juce::Label& label)
 {
     g.setColour (label.findColour (juce::Label::textColourId));
     g.setFont (getLabelFont (label));
@@ -48,7 +48,7 @@ void WaterhouseLNF::drawLabel (juce::Graphics& g, juce::Label& label)
 }
 
 // =============================================================================
-void WaterhouseLNF::paintKnobBody (juce::Graphics& g, juce::Rectangle<float> area,
+void OliverbLNF::paintKnobBody (juce::Graphics& g, juce::Rectangle<float> area,
                                    juce::Colour cap, float angle, bool bigCap)
 {
     const auto centre = area.getCentre();
@@ -89,7 +89,7 @@ void WaterhouseLNF::paintKnobBody (juce::Graphics& g, juce::Rectangle<float> are
                        .withCentre (centre.translated (0.0f, -radius * 0.05f)));
 }
 
-void WaterhouseLNF::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height,
+void OliverbLNF::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height,
                                       float sliderPos, float startAngle, float endAngle,
                                       juce::Slider& slider)
 {
@@ -122,7 +122,7 @@ void WaterhouseLNF::drawRotarySlider (juce::Graphics& g, int x, int y, int width
 }
 
 // =============================================================================
-void WaterhouseLNF::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b,
+void OliverbLNF::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b,
                                       bool isHighlighted, bool isDown)
 {
     auto r = b.getLocalBounds().toFloat().reduced (1.0f);
@@ -162,7 +162,7 @@ void WaterhouseLNF::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b,
                 juce::Justification::centred, false);
 }
 
-void WaterhouseLNF::drawButtonBackground (juce::Graphics& g, juce::Button& b,
+void OliverbLNF::drawButtonBackground (juce::Graphics& g, juce::Button& b,
                                           const juce::Colour& backgroundColour,
                                           bool isHighlighted, bool isDown)
 {
@@ -175,7 +175,7 @@ void WaterhouseLNF::drawButtonBackground (juce::Graphics& g, juce::Button& b,
     g.drawRoundedRectangle (r, corner, 1.0f);
 }
 
-void WaterhouseLNF::drawComboBox (juce::Graphics& g, int width, int height, bool,
+void OliverbLNF::drawComboBox (juce::Graphics& g, int width, int height, bool,
                                   int, int, int, int, juce::ComboBox& box)
 {
     auto r = juce::Rectangle<float> (0.0f, 0.0f, (float) width, (float) height).reduced (0.5f);
@@ -192,7 +192,7 @@ void WaterhouseLNF::drawComboBox (juce::Graphics& g, int width, int height, bool
 }
 
 // =============================================================================
-void WaterhouseLNF::paintPanel (juce::Graphics& g, juce::Rectangle<float> bounds,
+void OliverbLNF::paintPanel (juce::Graphics& g, juce::Rectangle<float> bounds,
                                 const juce::String& title, juce::Colour accent)
 {
     juce::ColourGradient grad (panel.brighter (0.05f), bounds.getX(), bounds.getY(),

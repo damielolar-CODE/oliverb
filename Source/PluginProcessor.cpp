@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — PluginProcessor.cpp
+//  OLIVERB — PluginProcessor.cpp
 //
 //  Signal flow (all of it running at 2x, so the non-linear stages fold their
 //  harmonics somewhere other than back into the audible band):
@@ -79,7 +79,7 @@ const std::vector<Preset>& factoryPresets()
 } // namespace
 
 // =============================================================================
-WaterhouseProcessor::WaterhouseProcessor()
+OliverbProcessor::OliverbProcessor()
     : AudioProcessor (BusesProperties()
                           .withInput ("Input", juce::AudioChannelSet::stereo(), true)
                           .withOutput ("Output", juce::AudioChannelSet::stereo(), true))
@@ -115,7 +115,7 @@ WaterhouseProcessor::WaterhouseProcessor()
 }
 
 // =============================================================================
-void WaterhouseProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void OliverbProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     oversampler = std::make_unique<juce::dsp::Oversampling<float>> (
         2, 1, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, true, true);
@@ -138,7 +138,7 @@ void WaterhouseProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     prepared = true;
 }
 
-bool WaterhouseProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool OliverbProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     const auto& out = layouts.getMainOutputChannelSet();
     const auto& in  = layouts.getMainInputChannelSet();
@@ -150,7 +150,7 @@ bool WaterhouseProcessor::isBusesLayoutSupported (const BusesLayout& layouts) co
 }
 
 // =============================================================================
-void WaterhouseProcessor::pullParameters()
+void OliverbProcessor::pullParameters()
 {
     const int type = filterTypeP->getIndex();
     const int step = filterStepP->get() - 1;
@@ -190,13 +190,13 @@ void WaterhouseProcessor::pullParameters()
     outputSmooth.setTargetValue (wh::dbToGain (pOutput->load()));
 }
 
-float WaterhouseProcessor::currentCornerHz() const noexcept
+float OliverbProcessor::currentCornerHz() const noexcept
 {
     return wh::PassiveHighPass::stepFrequency (filterTypeP->getIndex(), filterStepP->get() - 1);
 }
 
 // =============================================================================
-void WaterhouseProcessor::processBlock (juce::AudioBuffer<float>& buffer,
+void OliverbProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                         juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -297,15 +297,15 @@ void WaterhouseProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 }
 
 // =============================================================================
-juce::AudioProcessorEditor* WaterhouseProcessor::createEditor()
+juce::AudioProcessorEditor* OliverbProcessor::createEditor()
 {
-    return new WaterhouseEditor (*this);
+    return new OliverbEditor (*this);
 }
 
 // =============================================================================
-int WaterhouseProcessor::getNumPrograms() { return static_cast<int> (factoryPresets().size()); }
+int OliverbProcessor::getNumPrograms() { return static_cast<int> (factoryPresets().size()); }
 
-const juce::String WaterhouseProcessor::getProgramName (int index)
+const juce::String OliverbProcessor::getProgramName (int index)
 {
     const auto& p = factoryPresets();
     return juce::isPositiveAndBelow (index, static_cast<int> (p.size()))
@@ -313,7 +313,7 @@ const juce::String WaterhouseProcessor::getProgramName (int index)
                : juce::String();
 }
 
-void WaterhouseProcessor::setCurrentProgram (int index)
+void OliverbProcessor::setCurrentProgram (int index)
 {
     const auto& presets = factoryPresets();
     if (! juce::isPositiveAndBelow (index, static_cast<int> (presets.size())))
@@ -334,13 +334,13 @@ void WaterhouseProcessor::setCurrentProgram (int index)
 }
 
 // =============================================================================
-void WaterhouseProcessor::getStateInformation (juce::MemoryBlock& destData)
+void OliverbProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     if (auto xml = apvts.copyState().createXml())
         copyXmlToBinary (*xml, destData);
 }
 
-void WaterhouseProcessor::setStateInformation (const void* data, int sizeInBytes)
+void OliverbProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     if (auto xml = getXmlFromBinary (data, sizeInBytes))
         if (xml->hasTagName (apvts.state.getType()))
@@ -350,5 +350,5 @@ void WaterhouseProcessor::setStateInformation (const void* data, int sizeInBytes
 // =============================================================================
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new WaterhouseProcessor();
+    return new OliverbProcessor();
 }

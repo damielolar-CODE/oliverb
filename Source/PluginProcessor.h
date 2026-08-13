@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — PluginProcessor.h
+//  OLIVERB — PluginProcessor.h
 // =============================================================================
 #pragma once
 
@@ -11,11 +11,11 @@
 #include "dsp/TapeEcho.h"
 #include "dsp/SpringReverb.h"
 
-class WaterhouseProcessor : public juce::AudioProcessor
+class OliverbProcessor : public juce::AudioProcessor
 {
 public:
-    WaterhouseProcessor();
-    ~WaterhouseProcessor() override = default;
+    OliverbProcessor();
+    ~OliverbProcessor() override = default;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override {}
@@ -43,7 +43,7 @@ public:
     void getStateInformation (juce::MemoryBlock&) override;
     void setStateInformation (const void*, int) override;
 
-    juce::AudioProcessorValueTreeState apvts { *this, nullptr, "WATERHOUSE",
+    juce::AudioProcessorValueTreeState apvts { *this, nullptr, "OLIVERB",
                                               wh::createParameterLayout() };
 
     /** Frequency currently selected on the big dial, for the editor's readout. */
@@ -103,5 +103,5 @@ private:
     int    currentProgram = 0;
     bool   prepared = false;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaterhouseProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OliverbProcessor)
 };

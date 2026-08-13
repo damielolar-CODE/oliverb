@@ -1,10 +1,10 @@
-# Waterhouse
+# OLIVERB
 
 **A passive high-pass filter, a two-track tape echo, and a spring tank — the three boxes that made dub.**
 
 VST3 / AU / Standalone. macOS, Windows, Linux. C++17 + JUCE 8.
 
-![Waterhouse interface](docs/interface.png)
+![OLIVERB interface](docs/interface.png)
 
 ---
 
@@ -34,7 +34,7 @@ Every push to `main` builds installable plug-ins for all three platforms via Git
 
 1. Push this repo to GitHub (see below).
 2. Open the **Actions** tab → click the newest run → wait for the green ticks.
-3. Download **Waterhouse-macOS** / **Waterhouse-Windows** / **Waterhouse-Linux** from the
+3. Download **OLIVERB-macOS** / **OLIVERB-Windows** / **OLIVERB-Linux** from the
    *Artifacts* box at the bottom of the run.
 
 Install by dropping the `.vst3` (and `.component` on macOS) into:
@@ -43,7 +43,7 @@ Install by dropping the `.vst3` (and `.component` on macOS) into:
 - Windows: `C:\Program Files\Common Files\VST3\`
 
 macOS will refuse to open an unsigned plug-in the first time. Right-click → Open, or run
-`xattr -dr com.apple.quarantine /path/to/Waterhouse.vst3`.
+`xattr -dr com.apple.quarantine /path/to/Oliverb.vst3`.
 
 Tag a commit `v1.0.0` and the same workflow publishes a GitHub Release with the zips attached.
 

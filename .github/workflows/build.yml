@@ -2,7 +2,7 @@ name: Build
 
 # Builds installable plug-ins on all three platforms every time you push.
 # Grab them from the "Artifacts" section at the bottom of a finished run:
-#   https://github.com/<you>/waterhouse/actions
+#   https://github.com/<you>/oliverb/actions
 #
 # Push a tag like v1.0.0 and it also publishes a GitHub Release with the
 # binaries attached.
@@ -24,13 +24,13 @@ jobs:
         include:
           - name: macOS (VST3 + AU, universal)
             os: macos-14
-            artifact: Waterhouse-macOS
+            artifact: OLIVERB-macOS
           - name: Windows (VST3)
             os: windows-latest
-            artifact: Waterhouse-Windows
+            artifact: OLIVERB-Windows
           - name: Linux (VST3)
             os: ubuntu-latest
-            artifact: Waterhouse-Linux
+            artifact: OLIVERB-Linux
 
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          cd build/Waterhouse_artefacts
+          cd build/Oliverb_artefacts
           # The artefacts folder is either Release/ or the config-less root
           # depending on the generator, so look in both.
           for d in Release .; do

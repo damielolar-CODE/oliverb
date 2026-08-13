@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — DSP test harness
+//  OLIVERB — DSP test harness
 //
 //  Builds and runs the entire DSP core with no JUCE and no plugin host, so the
 //  maths can be checked in isolation:
@@ -68,7 +68,7 @@ float magnitudeDb (wh::PassiveHighPass& f, float hz)
 
 int main()
 {
-    std::printf ("\n=== Waterhouse DSP core ===\n\n");
+    std::printf ("\n=== OLIVERB DSP core ===\n\n");
 
     // -------------------------------------------------------------------------
     std::printf ("Filter: switch positions\n");

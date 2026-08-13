@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — PluginEditor.cpp
+//  OLIVERB — PluginEditor.cpp
 //
 //  Everything is laid out at a fixed design size and then scaled with an
 //  AffineTransform, so the window can be dragged to any size without the
@@ -47,7 +47,7 @@ void KnobBox::resized()
 void KnobBox::paint (juce::Graphics& g)
 {
     g.setColour (creamDim);
-    g.setFont (WaterhouseLNF::faceFont (11.0f, true));
+    g.setFont (OliverbLNF::faceFont (11.0f, true));
     g.drawText (caption.toUpperCase(), getLocalBounds().withHeight (14),
                 juce::Justification::centred, false);
 }
@@ -78,7 +78,7 @@ void BigDial::paint (juce::Graphics& g)
     const int steps = wh::PassiveHighPass::kNumSteps;
 
     // Detent marks + silkscreened frequencies
-    g.setFont (WaterhouseLNF::faceFont (10.0f, false));
+    g.setFont (OliverbLNF::faceFont (10.0f, false));
     for (int i = 0; i < steps; ++i)
     {
         const float t = static_cast<float> (i) / static_cast<float> (steps - 1);
@@ -106,12 +106,12 @@ void BigDial::paint (juce::Graphics& g)
     }
 
     const float t = (float) ((getValue() - getMinimum()) / (getMaximum() - getMinimum()));
-    WaterhouseLNF::paintKnobBody (g, area, red, kRotStart + t * (kRotEnd - kRotStart), true);
+    OliverbLNF::paintKnobBody (g, area, red, kRotStart + t * (kRotEnd - kRotStart), true);
 
     // Corner frequency readout on the cap skirt
     const float hz = wh::PassiveHighPass::stepFrequency (bank, juce::roundToInt (getValue()) - 1);
     g.setColour (juce::Colours::white.withAlpha (0.92f));
-    g.setFont (WaterhouseLNF::faceFont (15.0f, true));
+    g.setFont (OliverbLNF::faceFont (15.0f, true));
     g.drawText (hz >= 1000.0f ? juce::String (hz / 1000.0f, 1) + " kHz"
                               : juce::String (juce::roundToInt (hz)) + " Hz",
                 juce::Rectangle<float> (110.0f, 18.0f)
@@ -120,7 +120,7 @@ void BigDial::paint (juce::Graphics& g)
 }
 
 // =============================================================================
-LevelMeter::LevelMeter (WaterhouseProcessor& p) : proc (p) { startTimerHz (30); }
+LevelMeter::LevelMeter (OliverbProcessor& p) : proc (p) { startTimerHz (30); }
 
 void LevelMeter::timerCallback()
 {
@@ -158,7 +158,7 @@ void LevelMeter::paint (juce::Graphics& g)
 }
 
 // =============================================================================
-WaterhouseEditor::WaterhouseEditor (WaterhouseProcessor& p)
+OliverbEditor::OliverbEditor (OliverbProcessor& p)
     : AudioProcessorEditor (&p), proc (p)
 {
     setLookAndFeel (&lnf);
@@ -242,7 +242,7 @@ WaterhouseEditor::WaterhouseEditor (WaterhouseProcessor& p)
 
     content.addAndMakeVisible (cornerReadout);
     cornerReadout.setJustificationType (juce::Justification::centredRight);
-    cornerReadout.setFont (WaterhouseLNF::faceFont (12.5f));
+    cornerReadout.setFont (OliverbLNF::faceFont (12.5f));
     cornerReadout.setColour (juce::Label::textColourId, creamDim);
 
     content.setSize (kDesignW, kDesignH);
@@ -256,12 +256,12 @@ WaterhouseEditor::WaterhouseEditor (WaterhouseProcessor& p)
     startTimerHz (12);
 }
 
-WaterhouseEditor::~WaterhouseEditor()
+OliverbEditor::~OliverbEditor()
 {
     setLookAndFeel (nullptr);
 }
 
-void WaterhouseEditor::refreshPresetBox()
+void OliverbEditor::refreshPresetBox()
 {
     presetBox.clear (juce::dontSendNotification);
     for (int i = 0; i < proc.getNumPrograms(); ++i)
@@ -269,7 +269,7 @@ void WaterhouseEditor::refreshPresetBox()
     presetBox.setSelectedId (proc.getCurrentProgram() + 1, juce::dontSendNotification);
 }
 
-void WaterhouseEditor::timerCallback()
+void OliverbEditor::timerCallback()
 {
     const bool synced = syncButton.getToggleState();
     divBox.setVisible (synced);
@@ -288,7 +288,7 @@ void WaterhouseEditor::timerCallback()
 }
 
 // =============================================================================
-void WaterhouseEditor::layoutContent()
+void OliverbEditor::layoutContent()
 {
     auto full = juce::Rectangle<int> (0, 0, kDesignW, kDesignH).reduced (12, 10);
 
@@ -374,7 +374,7 @@ void WaterhouseEditor::layoutContent()
     cornerReadout.setBounds (sp.reduced (16, 8));
 }
 
-void WaterhouseEditor::resized()
+void OliverbEditor::resized()
 {
     const float scale = juce::jmin ((float) getWidth() / (float) kDesignW,
                                     (float) getHeight() / (float) kDesignH);
@@ -383,7 +383,7 @@ void WaterhouseEditor::resized()
 }
 
 // =============================================================================
-void WaterhouseEditor::paint (juce::Graphics& g)
+void OliverbEditor::paint (juce::Graphics& g)
 {
     g.fillAll (background);
 
@@ -406,19 +406,19 @@ void WaterhouseEditor::paint (juce::Graphics& g)
     // Header text
     auto header = full.removeFromTop (58);
     g.setColour (cream);
-    g.setFont (WaterhouseLNF::faceFont (27.0f, true));
-    g.drawText ("WATERHOUSE", header.withHeight (32), juce::Justification::topLeft, false);
+    g.setFont (OliverbLNF::faceFont (27.0f, true));
+    g.drawText ("OLIVERB", header.withHeight (32), juce::Justification::topLeft, false);
 
     g.setColour (red);
-    g.setFont (WaterhouseLNF::faceFont (11.5f, true));
-    g.drawText ("DUB STATION   -   PASSIVE FILTER / TAPE ECHO / SPRING TANK",
+    g.setFont (OliverbLNF::faceFont (11.5f, true));
+    g.drawText ("PASSIVE FILTER  /  TAPE ECHO  /  SPRING TANK",
                 header.withTrimmedTop (32).withHeight (18), juce::Justification::topLeft, false);
 
     full.removeFromTop (6);
 
-    WaterhouseLNF::paintPanel (g, full.removeFromTop (252).toFloat(), "Filter   -   Big Dial", red);
+    OliverbLNF::paintPanel (g, full.removeFromTop (252).toFloat(), "Filter   -   Big Dial", red);
     full.removeFromTop (10);
-    WaterhouseLNF::paintPanel (g, full.removeFromTop (192).toFloat(), "Echo   -   Two Track", brass);
+    OliverbLNF::paintPanel (g, full.removeFromTop (192).toFloat(), "Echo   -   Two Track", brass);
     full.removeFromTop (10);
-    WaterhouseLNF::paintPanel (g, full.toFloat(), "Spring   -   Tank", green);
+    OliverbLNF::paintPanel (g, full.toFloat(), "Spring   -   Tank", green);
 }

@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — PluginEditor.h
+//  OLIVERB — PluginEditor.h
 // =============================================================================
 #pragma once
 
@@ -47,24 +47,24 @@ private:
 class LevelMeter : public juce::Component, private juce::Timer
 {
 public:
-    explicit LevelMeter (WaterhouseProcessor&);
+    explicit LevelMeter (OliverbProcessor&);
     void paint (juce::Graphics&) override;
 
 private:
     void timerCallback() override;
 
-    WaterhouseProcessor& proc;
+    OliverbProcessor& proc;
     float displayL = 0.0f, displayR = 0.0f;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LevelMeter)
 };
 
 // -----------------------------------------------------------------------------
-class WaterhouseEditor : public juce::AudioProcessorEditor,
+class OliverbEditor : public juce::AudioProcessorEditor,
                          private juce::Timer
 {
 public:
-    explicit WaterhouseEditor (WaterhouseProcessor&);
-    ~WaterhouseEditor() override;
+    explicit OliverbEditor (OliverbProcessor&);
+    ~OliverbEditor() override;
 
     void paint (juce::Graphics&) override;
     void resized() override;
@@ -78,8 +78,8 @@ private:
     using ButtonAtt = juce::AudioProcessorValueTreeState::ButtonAttachment;
     using ComboAtt  = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 
-    WaterhouseProcessor& proc;
-    WaterhouseLNF lnf;
+    OliverbProcessor& proc;
+    OliverbLNF lnf;
 
     juce::Component content;    // laid out at a fixed design size, then scaled
 
@@ -111,5 +111,5 @@ private:
 
     juce::Label cornerReadout;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaterhouseEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OliverbEditor)
 };

@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — LookAndFeel.h
+//  OLIVERB — LookAndFeel.h
 //  A 1960s console faceplate: warm black crackle paint, cream silkscreen,
 //  oxidised brass, and one very large red knob.
 // =============================================================================
@@ -22,10 +22,10 @@ inline const juce::Colour knobBody     { 0xff23201d };
 inline const juce::Colour knobEdge     { 0xff3a332e };
 } // namespace wh::colours
 
-class WaterhouseLNF : public juce::LookAndFeel_V4
+class OliverbLNF : public juce::LookAndFeel_V4
 {
 public:
-    WaterhouseLNF();
+    OliverbLNF();
 
     void drawRotarySlider (juce::Graphics&, int x, int y, int width, int height,
                            float sliderPos, float rotaryStartAngle,

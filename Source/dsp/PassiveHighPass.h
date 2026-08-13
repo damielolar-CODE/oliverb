@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — PassiveHighPass.h
+//  OLIVERB — PassiveHighPass.h
 //
 //  A model of the passive, inductor-based, stepped variable high-pass filter
 //  of the kind used on 1960s broadcast/console EQ modules (the Altec 9069B

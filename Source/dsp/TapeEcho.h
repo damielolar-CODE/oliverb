@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — TapeEcho.h
+//  OLIVERB — TapeEcho.h
 //
 //  A 2-track studio recorder pressed into service as an echo unit: record
 //  head, a fixed gap to the replay head, and a hand-patched feedback loop

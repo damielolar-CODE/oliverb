@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Waterhouse VERSION 1.0.0 LANGUAGES C CXX)
+project(Oliverb VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,7 +24,7 @@ set(WH_JUCE_PATH "" CACHE PATH "Path to an existing JUCE checkout (optional)")
 option(WH_COPY_PLUGIN "Copy the plug-in into the system plug-in folder after building" ON)
 
 if(WH_JUCE_PATH)
-    message(STATUS "Waterhouse: using local JUCE at ${WH_JUCE_PATH}")
+    message(STATUS "OLIVERB: using local JUCE at ${WH_JUCE_PATH}")
     add_subdirectory(${WH_JUCE_PATH} ${CMAKE_BINARY_DIR}/JUCE EXCLUDE_FROM_ALL)
 else()
     include(FetchContent)
@@ -40,13 +40,13 @@ endif()
 # -----------------------------------------------------------------------------
 # The plugin
 # -----------------------------------------------------------------------------
-juce_add_plugin(Waterhouse
+juce_add_plugin(Oliverb
     COMPANY_NAME                "Deestech"
-    BUNDLE_ID                   "com.deestech.waterhouse"
+    BUNDLE_ID                   "com.deestech.oliverb"
     PLUGIN_MANUFACTURER_CODE    Dees
-    PLUGIN_CODE                 Wthe
+    PLUGIN_CODE                 Olvb
     FORMATS                     VST3 AU Standalone
-    PRODUCT_NAME                "Waterhouse"
+    PRODUCT_NAME                "OLIVERB"
     DESCRIPTION                 "Passive high-pass filter, tape echo and spring tank"
     IS_SYNTH                    FALSE
     NEEDS_MIDI_INPUT            FALSE
@@ -58,13 +58,13 @@ juce_add_plugin(Waterhouse
     AU_MAIN_TYPE                kAudioUnitType_Effect
 )
 
-target_sources(Waterhouse PRIVATE
+target_sources(Oliverb PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
     Source/LookAndFeel.cpp
 )
 
-target_compile_definitions(Waterhouse PUBLIC
+target_compile_definitions(Oliverb PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
@@ -73,7 +73,7 @@ target_compile_definitions(Waterhouse PUBLIC
     JUCE_STRICT_REFCOUNTEDPOINTER=1
 )
 
-target_link_libraries(Waterhouse PRIVATE
+target_link_libraries(Oliverb PRIVATE
     juce::juce_audio_utils
     juce::juce_dsp
     PUBLIC

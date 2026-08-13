@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — Parameters.h
+//  OLIVERB — Parameters.h
 //  Single source of truth for every parameter ID, range and default.
 // =============================================================================
 #pragma once

@@ -1,5 +1,5 @@
 // =============================================================================
-//  Waterhouse — Utils.h
+//  OLIVERB — Utils.h
 //  Small, dependency-free DSP primitives shared by every module.
 //  Pure C++17: no JUCE here, so the whole DSP core can be unit-tested
 //  from a plain command-line harness (see Tests/dsp_test.cpp).
