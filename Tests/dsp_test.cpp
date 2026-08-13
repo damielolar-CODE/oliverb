@@ -25,6 +25,7 @@
 
 namespace
 {
+constexpr double kPi = 3.14159265358979323846; // MSVC's <cmath> has no M_PI without _USE_MATH_DEFINES
 constexpr double kSR = 48000.0;
 int failures = 0;
 
@@ -48,7 +49,7 @@ float magnitudeDb (wh::PassiveHighPass& f, float hz)
 {
     const int settle = static_cast<int> (kSR * 0.5);
     const int measure = static_cast<int> (kSR * 0.5);
-    const double w = 2.0 * M_PI * hz / kSR;
+    const double w = 2.0 * kPi * hz / kSR;
 
     for (int i = 0; i < settle; ++i)
         f.process (static_cast<float> (std::sin (w * i)));
