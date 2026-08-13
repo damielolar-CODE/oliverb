@@ -4,6 +4,8 @@
 
 VST3 / AU / Standalone. macOS, Windows, Linux. C++17 + JUCE 8.
 
+**[User manual](docs/MANUAL.md)** — installation, every control, presets, dub techniques.
+
 ![OLIVERB interface](docs/interface.png)
 
 ---
