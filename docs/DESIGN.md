@@ -107,6 +107,27 @@ allpass coefficient for how chirpy it is, `body.set()` for the metallic ring.
 
 ---
 
+## 3½. Modulation — `Source/dsp/Modulation.h`
+
+The LFO and the envelope follower both write to `PassiveHighPass::setModOctaves()`,
+which scales the integrator gain by `2^octaves` per sample. Scaling `g` directly (rather
+than recomputing `tan()`) is exact for small `g` and slightly flat at the top of the
+range — the same trade the core-saturation model already makes, and it keeps a
+transcendental out of the per-sample path. The TPT topology is what makes audio-rate
+corner modulation safe at all; a direct-form biquad would blow up here.
+
+Two decisions worth keeping:
+
+- **Modulation is shared by both channels.** Independent L/R modulation makes the stereo
+  image wander; the hardware's filter was mono anyway.
+- **The envelope listens to the input, pre-filter.** Following the filter's own output
+  would close a feedback loop around the corner position — briefly entertaining, mostly
+  unstable.
+
+Square and S&H run through a 3 ms smoother: the corner still snaps, the zipper doesn't.
+`dsp_test` sweeps all five shapes at ±3 octaves against the filter's worst-case settings
+and asserts the output stays finite and bounded.
+
 ## 4. Plumbing — `Source/PluginProcessor.cpp`
 
 - Everything runs at **2× oversampling** (`filterHalfBandPolyphaseIIR`), because both the

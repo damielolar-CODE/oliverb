@@ -17,6 +17,7 @@
 #include "../Source/dsp/PassiveHighPass.h"
 #include "../Source/dsp/TapeEcho.h"
 #include "../Source/dsp/SpringReverb.h"
+#include "../Source/dsp/Modulation.h"
 
 #include <cmath>
 #include <cstdio>
@@ -161,6 +162,41 @@ int main()
         }
         std::printf ("  peak: %.3f\n", peak);
         check (ok, "no NaN/inf while sweeping the switch under heavy drive");
+    }
+
+    // -------------------------------------------------------------------------
+    std::printf ("\nFilter: audio-rate corner modulation stays finite\n");
+    {
+        wh::PassiveHighPass f;
+        f.prepare (kSR);
+        f.setStep (0, 6);
+        f.setImpedance (0.9f);
+        f.setMagnetism (0.6f);
+        f.setCharacter (0.5f);
+        f.setGain (6.0f);
+
+        wh::LFO lfo;
+        lfo.prepare (kSR);
+        lfo.setRateHz (20.0f);
+
+        wh::Noise n;
+        bool ok = true;
+        float peak = 0.0f;
+
+        for (int shape = 0; shape < wh::LFO::NumShapes && ok; ++shape)
+        {
+            lfo.setShape (shape);
+            for (int i = 0; i < static_cast<int> (kSR); ++i)
+            {
+                f.setModOctaves (lfo.next() * 3.0f);        // full +/-3 octave throw
+                const float y = f.process (n.next());
+                if (! std::isfinite (y)) { ok = false; break; }
+                peak = std::max (peak, std::fabs (y));
+            }
+        }
+        std::printf ("  peak across all LFO shapes at +/-3 oct: %.3f\n", peak);
+        check (ok, "modulated filter never goes non-finite");
+        check (peak < 50.0f, "modulated filter stays bounded");
     }
 
     // -------------------------------------------------------------------------

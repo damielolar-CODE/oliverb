@@ -104,6 +104,13 @@ private:
     std::unique_ptr<ComboAtt> divAtt;
     std::unique_ptr<KnobBox> echoTime, echoFb, echoIn, echoOut, echoHiss, echoMix, echoAge;
 
+    // Modulation
+    juce::ToggleButton lfoOnButton { "LFO" }, lfoSyncButton { "SYNC" };
+    std::unique_ptr<ButtonAtt> lfoOnAtt, lfoSyncAtt;
+    juce::ComboBox shapeBox, lfoDivBox;
+    std::unique_ptr<ComboAtt> shapeAtt, lfoDivAtt;
+    std::unique_ptr<KnobBox> lfoRate, lfoDepth, envDepth, envSens, envSpeed;
+
     // Spring
     juce::ToggleButton springOnButton { "SPRING" };
     std::unique_ptr<ButtonAtt> springOnAtt;

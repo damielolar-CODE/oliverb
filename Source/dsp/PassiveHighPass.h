@@ -135,6 +135,11 @@ public:
     /** Internal make-up / drive trim, in dB. */
     void setGain (float db) noexcept { gain = dbToGain (clampf (db, -18.0f, 18.0f)); }
 
+    /** Per-sample corner modulation, in octaves relative to the switch
+        position. Fed by the LFO and envelope follower; safe at audio rate
+        because the TPT topology tolerates fast cutoff changes. */
+    void setModOctaves (float oct) noexcept { modOct = clampf (oct, -5.0f, 5.0f); }
+
     // ---- Audio --------------------------------------------------------------
     float process (float x) noexcept
     {
@@ -149,7 +154,13 @@ public:
             gSmooth.setTime (lerp (25.0f, 0.05f, artefacts));
         }
         gSmooth.setTarget (gTarget);
-        const float gBase = gSmooth.next();
+        float gBase = gSmooth.next();
+
+        // Modulation scales g as 2^octaves. Exact for small g, slightly flat at
+        // the very top of the range — the same trade the core model makes, and
+        // it keeps a transcendental out of the per-sample path.
+        if (std::fabs (modOct) > 1.0e-6f)
+            gBase = clampf (gBase * std::exp2 (modOct), 0.0008f, 2.6f);
 
         float in = x * gain;
 
@@ -235,6 +246,7 @@ private:
     float impedance = 0.35f, magnetism = 0.3f, character = 0.25f;
     float dynamics = 0.3f, artefacts = 0.2f, gain = 1.0f;
     float clickEnergy = 0.0f;
+    float modOct = 0.0f;
     bool  pendingClick = false;
 
     int curType = -1, curStep = -1;

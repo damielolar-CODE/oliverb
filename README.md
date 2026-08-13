@@ -102,6 +102,18 @@ keeps running — throw a snare in, close the door behind it. Changing Time drag
 transport, so it bends pitch on the way, as tape does. Hiss is recorded to tape, so it
 builds with the feedback instead of sitting on top.
 
+### Mod — LFO / Envelope
+
+Both sources push the **frequency dial**, in octaves relative to the switch position, so
+everything the filter does — the corner peak, the core saturation, the character — rides
+along with the sweep.
+
+- **LFO**: five shapes (sine, triangle, saw down, square, sample-and-hold), free-running
+  0.02–20 Hz or synced to the host with note divisions. Synced sweeps re-align to the bar.
+- **Envelope**: follows the *input* signal. `Sens` sets how hard it listens, `Speed` sets
+  how fast it moves, and `Env Depth` is bipolar — positive opens the filter on hits
+  (auto-wah), negative ducks it.
+
 ### Spring — Tank
 
 Spring (amount), Tension (decay), Drive (into the send transducer, where the crash lives).
@@ -131,7 +143,6 @@ can build in a second, and why the models can be lifted into another project as-
 
 ## Ideas worth doing next
 
-- LFO and envelope-follower modulation routed to the frequency dial (the original had both)
 - MIDI-learn on the big dial, so it can be swept from a fader
 - Ducking on the echo send, the standard modern dub move
 - A second spring tank voicing (short/bright vs long/dark)

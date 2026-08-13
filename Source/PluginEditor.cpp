@@ -13,7 +13,7 @@ using namespace wh::colours;
 namespace
 {
 constexpr int kDesignW = 920;
-constexpr int kDesignH = 676;
+constexpr int kDesignH = 792;
 constexpr float kRotStart = juce::MathConstants<float>::pi * 1.20f;
 constexpr float kRotEnd   = juce::MathConstants<float>::pi * 2.80f;
 } // namespace
@@ -240,6 +240,30 @@ OliverbEditor::OliverbEditor (OliverbProcessor& p)
     makeKnob (springDecay, "Tension", pid::springDecay, green);
     makeKnob (springDrive, "Drive",   pid::springDrive, green);
 
+    // ---- Modulation ---------------------------------------------------------
+    makeToggle (lfoOnButton, lfoOnAtt, pid::lfoOn);
+    makeToggle (lfoSyncButton, lfoSyncAtt, pid::lfoSync);
+
+    content.addAndMakeVisible (shapeBox);
+    shapeBox.addItemList ({ "Sine", "Triangle", "Saw Down", "Square", "S+H" }, 1);
+    shapeAtt = std::make_unique<ComboAtt> (proc.apvts, pid::lfoShape, shapeBox);
+
+    content.addAndMakeVisible (lfoDivBox);
+    lfoDivBox.addItemList (wh::divisionNames(), 1);
+    lfoDivAtt = std::make_unique<ComboAtt> (proc.apvts, pid::lfoDiv, lfoDivBox);
+
+    makeKnob (lfoRate,  "Rate",      pid::lfoRate,  juce::Colour (0xff7a6db0));
+    makeKnob (lfoDepth, "LFO Depth", pid::lfoDepth, juce::Colour (0xff7a6db0));
+    makeKnob (envDepth, "Env Depth", pid::envDepth, juce::Colour (0xff7a6db0));
+    makeKnob (envSens,  "Sens",      pid::envSens,  juce::Colour (0xff7a6db0));
+    makeKnob (envSpeed, "Speed",     pid::envSpeed, juce::Colour (0xff7a6db0));
+
+    // Initial visibility (the timer keeps these in step afterwards)
+    divBox.setVisible (syncButton.getToggleState());
+    if (echoTime) echoTime->setVisible (! syncButton.getToggleState());
+    lfoDivBox.setVisible (lfoSyncButton.getToggleState());
+    if (lfoRate) lfoRate->setVisible (! lfoSyncButton.getToggleState());
+
     content.addAndMakeVisible (cornerReadout);
     cornerReadout.setJustificationType (juce::Justification::centredRight);
     cornerReadout.setFont (OliverbLNF::faceFont (12.5f));
@@ -274,6 +298,10 @@ void OliverbEditor::timerCallback()
     const bool synced = syncButton.getToggleState();
     divBox.setVisible (synced);
     if (echoTime) echoTime->setVisible (! synced);
+
+    const bool lfoSynced = lfoSyncButton.getToggleState();
+    lfoDivBox.setVisible (lfoSynced);
+    if (lfoRate) lfoRate->setVisible (! lfoSynced);
 
     bigDial->repaint();
 
@@ -358,6 +386,31 @@ void OliverbEditor::layoutContent()
 
     full.removeFromTop (10);
 
+    // ---- Mod panel ----------------------------------------------------------
+    auto modPanel = full.removeFromTop (106);
+    auto mp = modPanel.reduced (22, 8).withTrimmedTop (20);
+
+    auto modLeft = mp.removeFromLeft (124);
+    lfoOnButton.setBounds (modLeft.removeFromTop (24).withWidth (104));
+    modLeft.removeFromTop (6);
+    lfoSyncButton.setBounds (modLeft.removeFromTop (24).withWidth (104));
+
+    {
+        KnobBox* row[] = { lfoRate.get(), lfoDepth.get(), envDepth.get(),
+                           envSens.get(), envSpeed.get() };
+        for (int i = 0; i < 5; ++i)
+        {
+            auto slot = mp.removeFromLeft (104).reduced (4, 0);
+            row[i]->setBounds (slot);
+            if (i == 0)
+                lfoDivBox.setBounds (slot.withSizeKeepingCentre (88, 24));
+        }
+    }
+
+    shapeBox.setBounds (mp.removeFromLeft (110).withSizeKeepingCentre (104, 24));
+
+    full.removeFromTop (10);
+
     // ---- Spring panel -------------------------------------------------------
     auto springPanel = full;
     auto sp = springPanel.reduced (22, 8).withTrimmedTop (20);
@@ -419,6 +472,10 @@ void OliverbEditor::paint (juce::Graphics& g)
     OliverbLNF::paintPanel (g, full.removeFromTop (252).toFloat(), "Filter   -   Big Dial", red);
     full.removeFromTop (10);
     OliverbLNF::paintPanel (g, full.removeFromTop (192).toFloat(), "Echo   -   Two Track", brass);
+    full.removeFromTop (10);
+    OliverbLNF::paintPanel (g, full.removeFromTop (106).toFloat(),
+                            "Mod   -   LFO / Envelope  >  Big Dial",
+                            juce::Colour (0xff7a6db0));
     full.removeFromTop (10);
     OliverbLNF::paintPanel (g, full.toFloat(), "Spring   -   Tank", green);
 }

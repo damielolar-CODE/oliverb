@@ -67,6 +67,17 @@ const std::vector<Preset>& factoryPresets()
             { pid::character, 0.35f }, { pid::echoMix, 0.0f }, { pid::springAmt, 0.0f },
             { pid::filterGain, 2.0f } } },
 
+        { "Auto Wah Skank", {
+            { pid::filterStep, 5 }, { pid::impedance, 0.75f }, { pid::magnetism, 0.4f },
+            { pid::envDepth, 1.6f }, { pid::envSens, 0.65f }, { pid::envSpeed, 0.7f },
+            { pid::echoMix, 0.18f }, { pid::springAmt, 0.18f } } },
+
+        { "Tidal Sweep", {
+            { pid::filterStep, 6 }, { pid::impedance, 0.85f }, { pid::lfoOn, 1 },
+            { pid::lfoShape, 1 }, { pid::lfoSync, 1 }, { pid::lfoDiv, 8 },
+            { pid::lfoDepth, 2.2f }, { pid::artefacts, 0.5f },
+            { pid::echoMix, 0.3f }, { pid::echoFb, 0.6f }, { pid::springAmt, 0.25f } } },
+
         { "Siren", {
             { pid::filterStep, 9 }, { pid::impedance, 1.0f }, { pid::magnetism, 1.0f },
             { pid::dynamics, 1.0f }, { pid::character, 0.8f }, { pid::artefacts, 1.0f },
@@ -94,6 +105,10 @@ OliverbProcessor::OliverbProcessor()
     echoSendP   = getRaw<juce::AudioParameterBool> (pid::echoSend);
     echoDivP    = getRaw<juce::AudioParameterChoice> (pid::echoDiv);
     springOnP   = getRaw<juce::AudioParameterBool> (pid::springOn);
+    lfoOnP      = getRaw<juce::AudioParameterBool> (pid::lfoOn);
+    lfoSyncP    = getRaw<juce::AudioParameterBool> (pid::lfoSync);
+    lfoShapeP   = getRaw<juce::AudioParameterChoice> (pid::lfoShape);
+    lfoDivP     = getRaw<juce::AudioParameterChoice> (pid::lfoDiv);
 
     pImpedance   = apvts.getRawParameterValue (pid::impedance);
     pMagnetism   = apvts.getRawParameterValue (pid::magnetism);
@@ -111,6 +126,11 @@ OliverbProcessor::OliverbProcessor()
     pSpringAmt   = apvts.getRawParameterValue (pid::springAmt);
     pSpringDecay = apvts.getRawParameterValue (pid::springDecay);
     pSpringDrive = apvts.getRawParameterValue (pid::springDrive);
+    pLfoRate     = apvts.getRawParameterValue (pid::lfoRate);
+    pLfoDepth    = apvts.getRawParameterValue (pid::lfoDepth);
+    pEnvDepth    = apvts.getRawParameterValue (pid::envDepth);
+    pEnvSens     = apvts.getRawParameterValue (pid::envSens);
+    pEnvSpeed    = apvts.getRawParameterValue (pid::envSpeed);
     pOutput      = apvts.getRawParameterValue (pid::outputGain);
 }
 
@@ -131,6 +151,9 @@ void OliverbProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     spring.prepare (osRate);
 
     echo.snapTimeMs (pEchoTime->load());
+
+    lfo.prepare (osRate);
+    modEnv.prepare (osRate);
 
     outputSmooth.reset (sampleRate, 0.02);
     outputSmooth.setCurrentAndTargetValue (wh::dbToGain (pOutput->load()));
@@ -183,6 +206,24 @@ void OliverbProcessor::pullParameters()
     echo.setAge (pEchoAge->load());
     echo.setSend (echoSendP->get());
 
+    // Modulation. Synced rate comes from the host tempo; free rate from the knob.
+    lfo.setShape (lfoShapeP->getIndex());
+    if (lfoSyncP->get())
+    {
+        const float quarters = wh::divisionInQuarterNotes (lfoDivP->getIndex());
+        lfo.setRateHz (static_cast<float> (hostBpm / 60.0) / quarters);
+        if (hostPlaying)
+            lfo.resync (hostPpq, quarters);
+    }
+    else
+    {
+        lfo.setRateHz (pLfoRate->load());
+    }
+
+    // Env speed: one knob scales attack and release together (5..80 ms -> 0.5..8 ms).
+    const float speed = pEnvSpeed->load();
+    modEnv.setTimes (wh::lerp (40.0f, 1.5f, speed), wh::lerp (300.0f, 30.0f, speed));
+
     spring.setAmount (springOnP->get() ? pSpringAmt->load() : 0.0f);
     spring.setDecay (pSpringDecay->load());
     spring.setDrive (pSpringDrive->load());
@@ -213,8 +254,11 @@ void OliverbProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     if (auto* ph = getPlayHead())
         if (auto pos = ph->getPosition())
-            if (auto bpm = pos->getBpm())
-                hostBpm = *bpm;
+        {
+            if (auto bpm = pos->getBpm())  hostBpm = *bpm;
+            if (auto ppq = pos->getPpqPosition()) hostPpq = *ppq;
+            hostPlaying = pos->getIsPlaying();
+        }
 
     pullParameters();
 
@@ -237,9 +281,29 @@ void OliverbProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         auto* R = up.getChannelPointer (1);
         const int n = static_cast<int> (up.getNumSamples());
 
+        const bool  lfoActive = lfoOnP->get();
+        const float lfoDepth  = pLfoDepth->load();
+        const float envDepth  = pEnvDepth->load();
+        const float envGain   = 1.0f + pEnvSens->load() * 15.0f;
+
         for (int i = 0; i < n; ++i)
         {
             float l = L[i], r = R[i];
+
+            // Corner modulation is shared by both channels so the stereo image
+            // doesn't wander. The envelope listens to the *input*, pre-filter —
+            // modulating from the filter's own output would make a feedback
+            // loop out of the corner position.
+            float mod = 0.0f;
+            if (lfoActive && std::fabs (lfoDepth) > 1.0e-6f)
+                mod += lfo.next() * lfoDepth;
+            if (std::fabs (envDepth) > 1.0e-6f)
+            {
+                const float e = modEnv.process (0.5f * (l + r) * envGain);
+                mod += wh::clampf (e, 0.0f, 1.0f) * envDepth;
+            }
+            filterL.setModOctaves (mod);
+            filterR.setModOctaves (mod);
 
             if (useFilter && ! filterAtEnd)
             {

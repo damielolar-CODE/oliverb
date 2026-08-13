@@ -10,6 +10,7 @@
 #include "dsp/PassiveHighPass.h"
 #include "dsp/TapeEcho.h"
 #include "dsp/SpringReverb.h"
+#include "dsp/Modulation.h"
 
 class OliverbProcessor : public juce::AudioProcessor
 {
@@ -72,6 +73,10 @@ private:
     juce::AudioParameterBool*   echoSendP     = nullptr;
     juce::AudioParameterChoice* echoDivP      = nullptr;
     juce::AudioParameterBool*   springOnP     = nullptr;
+    juce::AudioParameterBool*   lfoOnP        = nullptr;
+    juce::AudioParameterBool*   lfoSyncP      = nullptr;
+    juce::AudioParameterChoice* lfoShapeP     = nullptr;
+    juce::AudioParameterChoice* lfoDivP       = nullptr;
 
     std::atomic<float>* pImpedance = nullptr;
     std::atomic<float>* pMagnetism = nullptr;
@@ -89,17 +94,26 @@ private:
     std::atomic<float>* pSpringAmt = nullptr;
     std::atomic<float>* pSpringDecay = nullptr;
     std::atomic<float>* pSpringDrive = nullptr;
+    std::atomic<float>* pLfoRate   = nullptr;
+    std::atomic<float>* pLfoDepth  = nullptr;
+    std::atomic<float>* pEnvDepth  = nullptr;
+    std::atomic<float>* pEnvSens   = nullptr;
+    std::atomic<float>* pEnvSpeed  = nullptr;
     std::atomic<float>* pOutput    = nullptr;
 
     // DSP
     wh::PassiveHighPass filterL, filterR;
     wh::TapeEcho        echo;
     wh::SpringReverb    spring;
+    wh::LFO             lfo;
+    wh::EnvFollower     modEnv;
 
     std::unique_ptr<juce::dsp::Oversampling<float>> oversampler;
     juce::SmoothedValue<float> outputSmooth;
 
     double hostBpm = 120.0;
+    double hostPpq = 0.0;
+    bool   hostPlaying = false;
     int    currentProgram = 0;
     bool   prepared = false;
 

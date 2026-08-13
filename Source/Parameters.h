@@ -39,6 +39,17 @@ inline constexpr const char* springAmt   = "springAmount";
 inline constexpr const char* springDecay = "springDecay";
 inline constexpr const char* springDrive = "springDrive";
 
+// Modulation (targets the filter corner)
+inline constexpr const char* lfoOn       = "lfoOn";
+inline constexpr const char* lfoShape    = "lfoShape";
+inline constexpr const char* lfoRate     = "lfoRate";
+inline constexpr const char* lfoSync     = "lfoSync";
+inline constexpr const char* lfoDiv      = "lfoDiv";
+inline constexpr const char* lfoDepth    = "lfoDepth";
+inline constexpr const char* envDepth    = "envDepth";
+inline constexpr const char* envSens     = "envSens";
+inline constexpr const char* envSpeed    = "envSpeed";
+
 // Global
 inline constexpr const char* outputGain  = "outputGain";
 inline constexpr const char* bypass      = "bypass";
@@ -146,6 +157,35 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
               [pct] (float v, int) { return pct (v); });
     addFloat (pid::springDrive, "Tank Drive", { 0.0f, 1.0f }, 0.25f,
               [pct] (float v, int) { return pct (v); });
+
+    // ---- Modulation ---------------------------------------------------------
+    addBool (pid::lfoOn, "LFO On", false);
+
+    layout.add (std::make_unique<AudioParameterChoice> (
+        ParameterID { pid::lfoShape, 1 }, "LFO Shape",
+        StringArray { "Sine", "Triangle", "Saw Down", "Square", "S+H" }, 0));
+
+    layout.add (std::make_unique<AudioParameterFloat> (
+        ParameterID { pid::lfoRate, 1 }, "LFO Rate",
+        NormalisableRange<float> { 0.02f, 20.0f, 0.0f, 0.35f }, 0.8f,
+        AudioParameterFloatAttributes().withStringFromValueFunction (
+            [] (float v, int) { return String (v, 2) + " Hz"; })));
+
+    addBool (pid::lfoSync, "LFO Sync", false, "Sync", "Free");
+
+    layout.add (std::make_unique<AudioParameterChoice> (
+        ParameterID { pid::lfoDiv, 1 }, "LFO Division", divisionNames(), 7));
+
+    addFloat (pid::lfoDepth, "LFO Depth", { -3.0f, 3.0f, 0.01f }, 0.0f,
+              [] (float v, int) { return String (v, 2) + " oct"; });
+
+    addFloat (pid::envDepth, "Env Depth", { -3.0f, 3.0f, 0.01f }, 0.0f,
+              [] (float v, int) { return String (v, 2) + " oct"; });
+    addFloat (pid::envSens, "Env Sens", { 0.0f, 1.0f }, 0.5f,
+              [pct] (float v, int) { return pct (v); });
+    addFloat (pid::envSpeed, "Env Speed", { 0.0f, 1.0f }, 0.5f,
+              [pct] (float v, int) { return pct (v); })
+;
 
     // ---- Global -------------------------------------------------------------
     addFloat (pid::outputGain, "Output", { -24.0f, 12.0f, 0.1f }, 0.0f,
