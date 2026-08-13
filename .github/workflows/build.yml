@@ -73,6 +73,26 @@ jobs:
           done
           ls -R ../../dist
 
+      - name: Build macOS installer (.pkg)
+        if: runner.os == 'macOS'
+        run: |
+          pkgbuild --component dist/OLIVERB.vst3 \
+            --install-location /Library/Audio/Plug-Ins/VST3 \
+            --identifier com.deestech.oliverb.vst3 --version 1.0.0 vst3.pkg
+          PKGS="--package vst3.pkg"
+          if [ -d dist/OLIVERB.component ]; then
+            pkgbuild --component dist/OLIVERB.component \
+              --install-location /Library/Audio/Plug-Ins/Components \
+              --identifier com.deestech.oliverb.au --version 1.0.0 au.pkg
+            PKGS="$PKGS --package au.pkg"
+          fi
+          productbuild $PKGS dist/OLIVERB-macOS.pkg
+
+      - name: Build Windows installer (.exe)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: '"/c/Program Files (x86)/Inno Setup 6/ISCC.exe" scripts/installer/oliverb.iss'
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
