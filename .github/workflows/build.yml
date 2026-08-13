@@ -1,0 +1,102 @@
+name: Build
+
+# Builds installable plug-ins on all three platforms every time you push.
+# Grab them from the "Artifacts" section at the bottom of a finished run:
+#   https://github.com/<you>/waterhouse/actions
+#
+# Push a tag like v1.0.0 and it also publishes a GitHub Release with the
+# binaries attached.
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS (VST3 + AU, universal)
+            os: macos-14
+            artifact: Waterhouse-macOS
+          - name: Windows (VST3)
+            os: windows-latest
+            artifact: Waterhouse-Windows
+          - name: Linux (VST3)
+            os: ubuntu-latest
+            artifact: Waterhouse-Linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libx11-dev libxext-dev \
+            libxrandr-dev libxinerama-dev libxcursor-dev libfreetype6-dev \
+            libfontconfig1-dev libgl1-mesa-dev
+
+      - name: Cache JUCE download
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: juce-${{ runner.os }}-8.0.6
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DWH_COPY_PLUGIN=OFF
+
+      - name: Build plug-in
+        run: cmake --build build --config Release --parallel 3
+
+      - name: Run DSP tests
+        run: |
+          cmake --build build --config Release --target dsp_test --parallel 3
+          ./build/dsp_test || ./build/Release/dsp_test
+
+      - name: Collect binaries
+        shell: bash
+        run: |
+          mkdir -p dist
+          cd build/Waterhouse_artefacts
+          # The artefacts folder is either Release/ or the config-less root
+          # depending on the generator, so look in both.
+          for d in Release .; do
+            [ -d "$d/VST3" ] && cp -R "$d/VST3/"* ../../dist/ 2>/dev/null || true
+            [ -d "$d/AU" ]   && cp -R "$d/AU/"*   ../../dist/ 2>/dev/null || true
+          done
+          ls -R ../../dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Zip each platform
+        run: |
+          cd artifacts
+          for d in */; do zip -r "../${d%/}.zip" "$d"; done
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: '*.zip'
+          generate_release_notes: true

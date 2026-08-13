@@ -1,0 +1,11 @@
+build/
+build-*/
+cmake-build-*/
+.cache/
+.DS_Store
+*.user
+*.vcxproj*
+*.xcodeproj/
+JUCE/
+dist/
+dsp_test
