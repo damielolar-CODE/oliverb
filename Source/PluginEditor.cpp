@@ -13,7 +13,8 @@ using namespace wh::colours;
 namespace
 {
 constexpr int kDesignW = 920;
-constexpr int kDesignH = 792;
+constexpr int kDesignH = 962;
+constexpr int kValvePanelH = 160;
 constexpr float kRotStart = juce::MathConstants<float>::pi * 1.20f;
 constexpr float kRotEnd   = juce::MathConstants<float>::pi * 2.80f;
 } // namespace
@@ -148,13 +149,57 @@ void LevelMeter::paint (juce::Graphics& g)
                                           juce::Decibels::gainToDecibels (i == 0 ? displayL : displayR,
                                                                           -48.0f) / 48.0f + 1.0f);
         auto bar = juce::Rectangle<float> (r.getX() + 2.0f,
-                                           r.getY() + 2.0f + i * (h + 1.0f),
+                                           r.getY() + 2.0f + static_cast<float> (i) * (h + 1.0f),
                                            (r.getWidth() - 4.0f) * level, h);
         juce::ColourGradient grad (green, r.getX(), 0.0f, red, r.getRight(), 0.0f, false);
         grad.addColour (0.72, brass);
         g.setGradientFill (grad);
         g.fillRect (bar);
     }
+}
+
+// =============================================================================
+GlowLamp::GlowLamp (OliverbProcessor& p) : proc (p) { startTimerHz (30); }
+
+void GlowLamp::timerCallback()
+{
+    const float target = proc.valveGlow.load();
+    display += (target > display ? 0.35f : 0.08f) * (target - display);
+    repaint();
+}
+
+void GlowLamp::paint (juce::Graphics& g)
+{
+    auto r = getLocalBounds().toFloat();
+    const float size = juce::jmin (r.getWidth(), r.getHeight() - 22.0f);
+    auto bottle = juce::Rectangle<float> (size * 0.56f, size).withCentre ({ r.getCentreX(), r.getCentreY() - 10.0f });
+
+    // Glass envelope
+    g.setColour (juce::Colour (0xff0e0c0b));
+    g.fillRoundedRectangle (bottle, size * 0.28f);
+
+    // Filament glow: an amber radial gradient whose reach follows the level
+    const float glow = juce::jlimit (0.0f, 1.0f, 0.12f + display * 0.88f);
+    const auto c = bottle.getCentre().translated (0.0f, size * 0.08f);
+    juce::ColourGradient grad (amber.withAlpha (0.95f * glow), c.x, c.y,
+                               amber.withAlpha (0.0f), c.x, c.y - size * (0.30f + 0.35f * glow), true);
+    grad.addColour (0.35, juce::Colour (0xffff5a1f).withAlpha (0.55f * glow));
+    g.setGradientFill (grad);
+    g.fillRoundedRectangle (bottle, size * 0.28f);
+
+    // Filament + plate silhouette
+    g.setColour (juce::Colour (0xffffe0a8).withAlpha (0.25f + 0.7f * glow));
+    g.drawLine (c.x - size * 0.06f, c.y + size * 0.18f, c.x, c.y - size * 0.22f, 1.4f);
+    g.drawLine (c.x + size * 0.06f, c.y + size * 0.18f, c.x, c.y - size * 0.22f, 1.4f);
+    g.setColour (juce::Colours::white.withAlpha (0.10f));
+    g.drawRoundedRectangle (bottle, size * 0.28f, 1.0f);
+    g.setColour (knobEdge);
+    g.fillRoundedRectangle (bottle.withHeight (5.0f).withY (bottle.getBottom() - 2.0f).expanded (3.0f, 0.0f), 2.0f);
+
+    g.setColour (creamDim);
+    g.setFont (OliverbLNF::faceFont (11.0f, true));
+    g.drawText ("GLOW", r.withTop (bottle.getBottom() + 5.0f).withHeight (14.0f),
+                juce::Justification::centred, false);
 }
 
 // =============================================================================
@@ -195,6 +240,20 @@ OliverbEditor::OliverbEditor (OliverbProcessor& p)
 
     meter = std::make_unique<LevelMeter> (proc);
     content.addAndMakeVisible (*meter);
+
+    // ---- Valve (v2) ---------------------------------------------------------
+    makeToggle (valveOnButton, valveOnAtt, pid::valveOn);
+    makeToggle (valvePostButton, valvePostAtt, pid::valvePost);
+    makeToggle (valveEchoButton, valveEchoAtt, pid::valveEcho);
+
+    makeKnob (valveDrive, "Drive", pid::valveDrive, amber);
+    makeKnob (valveBias,  "Bias",  pid::valveBias,  amber);
+    makeKnob (valveSag,   "Sag",   pid::valveSag,   amber);
+    makeKnob (valveTone,  "Tone",  pid::valveTone,  amber);
+    makeKnob (valveMix,   "Mix",   pid::valveMix,   amber);
+
+    glowLamp = std::make_unique<GlowLamp> (proc);
+    content.addAndMakeVisible (*glowLamp);
 
     // ---- Filter -------------------------------------------------------------
     makeToggle (filterOnButton, filterOnAtt, pid::filterOn);
@@ -252,11 +311,11 @@ OliverbEditor::OliverbEditor (OliverbProcessor& p)
     lfoDivBox.addItemList (wh::divisionNames(), 1);
     lfoDivAtt = std::make_unique<ComboAtt> (proc.apvts, pid::lfoDiv, lfoDivBox);
 
-    makeKnob (lfoRate,  "Rate",      pid::lfoRate,  juce::Colour (0xff7a6db0));
-    makeKnob (lfoDepth, "LFO Depth", pid::lfoDepth, juce::Colour (0xff7a6db0));
-    makeKnob (envDepth, "Env Depth", pid::envDepth, juce::Colour (0xff7a6db0));
-    makeKnob (envSens,  "Sens",      pid::envSens,  juce::Colour (0xff7a6db0));
-    makeKnob (envSpeed, "Speed",     pid::envSpeed, juce::Colour (0xff7a6db0));
+    makeKnob (lfoRate,  "Rate",      pid::lfoRate,  violet);
+    makeKnob (lfoDepth, "LFO Depth", pid::lfoDepth, violet);
+    makeKnob (envDepth, "Env Depth", pid::envDepth, violet);
+    makeKnob (envSens,  "Sens",      pid::envSens,  violet);
+    makeKnob (envSpeed, "Speed",     pid::envSpeed, violet);
 
     // Initial visibility (the timer keeps these in step afterwards)
     divBox.setVisible (syncButton.getToggleState());
@@ -305,10 +364,18 @@ void OliverbEditor::timerCallback()
 
     bigDial->repaint();
 
-    const juce::String chain = postButton.getToggleState()
-                                   ? "IN  >  ECHO  >  SPRING  >  FILTER  >  OUT"
-                                   : "IN  >  FILTER  >  ECHO  >  SPRING  >  OUT";
-    cornerReadout.setText (chain + "\n18 dB per octave  /  2x oversampled",
+    juce::StringArray chain { "IN" };
+    const bool valveOn = valveOnButton.getToggleState();
+    const bool valveOut = valvePostButton.getToggleState();
+    if (valveOn && ! valveOut) chain.add ("VALVE");
+    if (! postButton.getToggleState()) chain.add ("FILTER");
+    chain.add ("ECHO");
+    chain.add ("SPRING");
+    if (postButton.getToggleState()) chain.add ("FILTER");
+    if (valveOn && valveOut) chain.add ("VALVE");
+    chain.add ("OUT");
+    cornerReadout.setText (chain.joinIntoString ("  >  ")
+                               + "\nv2  /  18 dB per octave  /  2x oversampled",
                            juce::dontSendNotification);
 
     if (presetBox.getSelectedId() - 1 != proc.getCurrentProgram())
@@ -333,6 +400,31 @@ void OliverbEditor::layoutContent()
     presetBox.setBounds (headerRight.removeFromRight (150).withSizeKeepingCentre (150, 24));
 
     full.removeFromTop (6);
+
+    // ---- Valve panel (v2) ---------------------------------------------------
+    auto valvePanel = full.removeFromTop (kValvePanelH);
+    auto vp = valvePanel.reduced (22, 8).withTrimmedTop (20);
+
+    auto valveSwitches = vp.removeFromBottom (30);
+    valveOnButton.setBounds (valveSwitches.removeFromLeft (104).withHeight (24));
+    valveSwitches.removeFromLeft (10);
+    valvePostButton.setBounds (valveSwitches.removeFromLeft (104).withHeight (24));
+    valveSwitches.removeFromLeft (10);
+    valveEchoButton.setBounds (valveSwitches.removeFromLeft (104).withHeight (24));
+
+    glowLamp->setBounds (vp.removeFromRight (96).reduced (8, 0));
+    vp.removeFromRight (10);
+
+    {
+        KnobBox* row[] = { valveDrive.get(), valveBias.get(), valveSag.get(),
+                           valveTone.get(), valveMix.get() };
+        const int n = 5;
+        const int w = vp.getWidth() / n;
+        for (int i = 0; i < n; ++i)
+            row[i]->setBounds (vp.removeFromLeft (w).reduced (4, 0));
+    }
+
+    full.removeFromTop (10);
 
     // ---- Filter panel -------------------------------------------------------
     auto filterPanel = full.removeFromTop (252);
@@ -464,18 +556,24 @@ void OliverbEditor::paint (juce::Graphics& g)
 
     g.setColour (red);
     g.setFont (OliverbLNF::faceFont (11.5f, true));
-    g.drawText ("PASSIVE FILTER  /  TAPE ECHO  /  SPRING TANK",
+    g.drawText ("VALVE PREAMP  /  PASSIVE FILTER  /  TAPE ECHO  /  SPRING TANK",
                 header.withTrimmedTop (32).withHeight (18), juce::Justification::topLeft, false);
+
+    g.setColour (creamDim);
+    g.setFont (OliverbLNF::faceFont (10.0f, true));
+    g.drawText ("MK II", header.withHeight (32).withTrimmedLeft (132).withTrimmedTop (9),
+                juce::Justification::topLeft, false);
 
     full.removeFromTop (6);
 
+    OliverbLNF::paintPanel (g, full.removeFromTop (kValvePanelH).toFloat(), "Valve   -   Preamp", amber);
+    full.removeFromTop (10);
     OliverbLNF::paintPanel (g, full.removeFromTop (252).toFloat(), "Filter   -   Big Dial", red);
     full.removeFromTop (10);
     OliverbLNF::paintPanel (g, full.removeFromTop (192).toFloat(), "Echo   -   Two Track", brass);
     full.removeFromTop (10);
     OliverbLNF::paintPanel (g, full.removeFromTop (106).toFloat(),
-                            "Mod   -   LFO / Envelope  >  Big Dial",
-                            juce::Colour (0xff7a6db0));
+                            "Mod   -   LFO / Envelope  >  Big Dial", violet);
     full.removeFromTop (10);
     OliverbLNF::paintPanel (g, full.toFloat(), "Spring   -   Tank", green);
 }

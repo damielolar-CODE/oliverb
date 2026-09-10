@@ -36,7 +36,7 @@ juce::Font OliverbLNF::getLabelFont (juce::Label& l) { return faceFont (l.getFon
 juce::Font OliverbLNF::getComboBoxFont (juce::ComboBox&) { return faceFont (13.0f); }
 juce::Font OliverbLNF::getTextButtonFont (juce::TextButton&, int h)
 {
-    return faceFont (juce::jmin (14.0f, h * 0.58f), true);
+    return faceFont (juce::jmin (14.0f, static_cast<float> (h) * 0.58f), true);
 }
 
 void OliverbLNF::drawLabel (juce::Graphics& g, juce::Label& label)

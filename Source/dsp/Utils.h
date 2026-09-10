@@ -49,6 +49,31 @@ inline float asymDrive (float x, float drive, float asym) noexcept
     return (softClip ((x + b) * drive) - softClip (b * drive)) / drive;
 }
 
+/** Triode-style transfer curve.
+
+    The positive swing runs into grid conduction (fast, fairly hard knee); the
+    negative swing runs toward cut-off (slow, soft knee). That asymmetry is
+    what makes a valve stage produce even harmonics — the "thickness" — where a
+    symmetric clipper only produces odd ones and sounds like a fuzz pedal.
+
+    `bias` in [0, 1] moves the operating point away from centre: colder (0) is
+    nearly symmetric and clean-ish, hotter (1) is strongly asymmetric. The
+    small-signal gain is normalised to unity and the resting DC offset is
+    removed, so the stage can be blended or bypassed without a level jump. */
+inline float triode (float x, float bias) noexcept
+{
+    const float b   = 0.10f + 0.50f * clampf (bias, 0.0f, 1.0f);
+    const float xb  = x + b;
+
+    // Grid side compresses harder than the cut-off side.
+    const float y   = xb >= 0.0f ? xb / (1.0f + 0.62f * xb)
+                                 : xb / (1.0f - 0.34f * xb);
+
+    const float y0  = b / (1.0f + 0.62f * b);                 // resting output
+    const float g0  = 1.0f / ((1.0f + 0.62f * b) * (1.0f + 0.62f * b)); // resting gain
+    return (y - y0) / g0;
+}
+
 /** dB -> linear gain. */
 inline float dbToGain (float db) noexcept { return std::pow (10.0f, db * 0.05f); }
 

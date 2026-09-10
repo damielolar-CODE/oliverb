@@ -59,6 +59,22 @@ private:
 };
 
 // -----------------------------------------------------------------------------
+/** The valve's filament lamp: glows brighter the harder the stage works. */
+class GlowLamp : public juce::Component, private juce::Timer
+{
+public:
+    explicit GlowLamp (OliverbProcessor&);
+    void paint (juce::Graphics&) override;
+
+private:
+    void timerCallback() override;
+
+    OliverbProcessor& proc;
+    float display = 0.0f;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GlowLamp)
+};
+
+// -----------------------------------------------------------------------------
 class OliverbEditor : public juce::AudioProcessorEditor,
                          private juce::Timer
 {
@@ -89,6 +105,12 @@ private:
     std::unique_ptr<ButtonAtt> bypassAtt;
     std::unique_ptr<KnobBox> outputKnob;
     std::unique_ptr<LevelMeter> meter;
+
+    // Valve (v2)
+    juce::ToggleButton valveOnButton { "VALVE" }, valvePostButton { "OUTPUT" }, valveEchoButton { "ECHO AMP" };
+    std::unique_ptr<ButtonAtt> valveOnAtt, valvePostAtt, valveEchoAtt;
+    std::unique_ptr<KnobBox> valveDrive, valveBias, valveSag, valveTone, valveMix;
+    std::unique_ptr<GlowLamp> glowLamp;
 
     // Filter
     juce::ToggleButton filterOnButton { "FILTER" }, typeButton { "BANK B" }, postButton { "POST" };

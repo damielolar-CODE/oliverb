@@ -6,6 +6,63 @@ and which line to touch.
 
 ---
 
+## 0. The valve — `Source/dsp/ValveStage.h` (v2)
+
+### The hardware
+
+A single-ended triode line amplifier with an output transformer. What matters musically:
+
+1. **The transfer curve is asymmetric.** Grid conduction flattens the positive swing
+   quickly; cut-off softens the negative swing slowly. Even-order harmonics fall out of
+   that asymmetry — the 2nd harmonic is the "warmth", the 3rd is the "bite". A symmetric
+   clipper only gives you the odd ones and sounds like a fuzz pedal.
+2. **The operating point is a knob.** Cold bias sits near the symmetric middle and stays
+   clean until pushed; hot bias is asymmetric from the first volt. That's `Bias`.
+3. **The supply gives way under load.** A slow envelope of the signal pulls the gain down
+   and the bias colder: compression and "bloom". That's `Sag`.
+4. **The transformer is iron.** A low bump around 90 Hz, loss at the very top, and the
+   core rounds off anything still too big for it. That's `Tone`.
+
+### The model
+
+`wh::triode()` in `Utils.h` is the curve: `xb/(1+0.62xb)` on the grid side,
+`xb/(1-0.34xb)` on the cut-off side, offset by the bias, with the resting DC removed and
+the small-signal gain normalised to unity. Unity normalisation is the whole trick — it
+means `Drive`, `Bias` and `Mix` can be moved without the level jumping, and the same
+function can be blended into the tape echo's record amp (`TapeEcho::setValve`).
+
+Per sample:
+
+```
+pre   = 1 + drive² · 60                       // up to +36 dB into the grid
+post  = (1 + 0.0056 (pre − 1)) / pre          // fitted: nominal sine keeps its RMS within 1 dB
+env   = slow follower of (input · pre · 0.12) // supply sag
+gSag  = 1 / (1 + sag · 1.6 · env)             // compression
+biasE = bias − sag · 0.35 · env               // bias goes colder under load
+v     = triode (x · pre · gSag · kOp, biasE) · post / kOp     kOp = 0.09
+v    += iron.bandpass (v) · 0.30 · tone       // transformer bump
+v     = hf.lowpass (v)                        // 19 kHz → 6.5 kHz with tone
+v     = lerp (v, softClip (1.35 v) / 1.35, tone · 0.5)       // core saturation
+```
+
+`kOp` runs the curve at a fraction of nominal level so zero drive is a line amp doing its
+job (≈1 % 2nd harmonic) rather than a valve already being pushed. `dsp_test` checks:
+unity within 1 dB at zero drive, mix 0 bit-exact, 2nd harmonic under −36 dB clean and
+within 30 dB of the fundamental when hot, hotter bias ⇒ more even-order content, and
+finite/bounded under a +20 dB square wave with DC.
+
+**Tweak points**
+
+| Want | Change |
+|---|---|
+| More/less asymmetry | the `0.62f` / `0.34f` knees in `triode()` |
+| More range on Drive | the `60.0f` in `pre` — then re-fit `post` (see the script in the v2 commit) |
+| Faster/slower bloom | `ch.sag.setTimes (12, 260)` in `prepare()` |
+| Different transformer voice | `ch.iron.set (92, 0.55)` and the `19000 → 6500` span in `updateTone()` |
+| Valve record amp flavour | the `0.62f` bias and `0.7f` level inside `TapeEcho::process` |
+
+---
+
 ## 1. The filter — `Source/dsp/PassiveHighPass.h`
 
 ### The hardware
@@ -130,6 +187,8 @@ and asserts the output stays finite and bounded.
 
 ## 4. Plumbing — `Source/PluginProcessor.cpp`
 
+- The valve (v2) sits first in the chain by default, or last with `Valve Position` set to
+  Output. `Valve Echo Amp` hands the same curve to the tape machine, scaled by Drive.
 - Everything runs at **2× oversampling** (`filterHalfBandPolyphaseIIR`), because both the
   core model and the record amp generate harmonics that would otherwise fold back down.
   Latency is reported to the host automatically.

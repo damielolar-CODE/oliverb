@@ -35,54 +35,81 @@ const std::vector<Preset>& factoryPresets()
             { pid::filterStep, 4 }, { pid::filterType, 0 }, { pid::impedance, 0.55f },
             { pid::magnetism, 0.35f }, { pid::character, 0.30f }, { pid::filterPost, 0 },
             { pid::echoTime, 375.0f }, { pid::echoFb, 0.55f }, { pid::echoMix, 0.35f },
-            { pid::echoAge, 0.5f }, { pid::springAmt, 0.25f } } },
+            { pid::echoAge, 0.5f }, { pid::springAmt, 0.25f },
+            { pid::valveDrive, 0.40f }, { pid::valveBias, 0.55f }, { pid::valveSag, 0.35f } } },
+
+        { "Valve Warmth", {
+            { pid::echoMix, 0.0f }, { pid::springAmt, 0.0f }, { pid::filterOn, 0 },
+            { pid::valveDrive, 0.45f }, { pid::valveBias, 0.65f }, { pid::valveSag, 0.25f },
+            { pid::valveTone, 0.55f } } },
+
+        { "Hot Preamp", {
+            { pid::echoMix, 0.0f }, { pid::springAmt, 0.0f }, { pid::filterOn, 0 },
+            { pid::valveDrive, 0.85f }, { pid::valveBias, 0.80f }, { pid::valveSag, 0.60f },
+            { pid::valveTone, 0.70f } } },
 
         { "Snare Throw", {
             { pid::filterStep, 6 }, { pid::impedance, 0.7f }, { pid::filterPost, 0 },
             { pid::echoTime, 300.0f }, { pid::echoFb, 0.85f }, { pid::echoMix, 0.6f },
-            { pid::echoIn, 1.1f }, { pid::springAmt, 0.35f }, { pid::springDrive, 0.4f } } },
+            { pid::echoIn, 1.1f }, { pid::springAmt, 0.35f }, { pid::springDrive, 0.4f },
+            { pid::valveDrive, 0.55f }, { pid::valveSag, 0.5f } } },
 
         { "Big Dial Sweep", {
             { pid::filterStep, 7 }, { pid::impedance, 1.0f }, { pid::magnetism, 0.8f },
             { pid::dynamics, 0.7f }, { pid::character, 0.6f }, { pid::artefacts, 0.7f },
-            { pid::echoMix, 0.2f }, { pid::springAmt, 0.15f } } },
+            { pid::echoMix, 0.2f }, { pid::springAmt, 0.15f },
+            { pid::valveDrive, 0.30f } } },
 
         { "Tape Wash", {
             { pid::filterStep, 2 }, { pid::impedance, 0.25f },
             { pid::echoTime, 700.0f }, { pid::echoFb, 0.72f }, { pid::echoMix, 0.5f },
             { pid::echoHiss, 0.45f }, { pid::echoAge, 0.9f }, { pid::springAmt, 0.3f },
-            { pid::springDecay, 0.75f } } },
+            { pid::springDecay, 0.75f },
+            { pid::valveDrive, 0.5f }, { pid::valveBias, 0.7f }, { pid::valveTone, 0.8f } } },
+
+        { "Glowing Tape", {
+            { pid::filterStep, 3 }, { pid::impedance, 0.4f },
+            { pid::echoTime, 500.0f }, { pid::echoFb, 0.78f }, { pid::echoMix, 0.55f },
+            { pid::echoAge, 0.7f }, { pid::springAmt, 0.2f },
+            { pid::valvePost, 1 }, { pid::valveDrive, 0.7f }, { pid::valveBias, 0.75f },
+            { pid::valveSag, 0.65f }, { pid::valveTone, 0.6f } } },
 
         { "Held Echo (Dub Out)", {
             { pid::echoSend, 0 }, { pid::echoFb, 1.0f }, { pid::echoMix, 1.0f },
             { pid::echoOut, 1.0f }, { pid::filterStep, 3 }, { pid::impedance, 0.6f },
-            { pid::filterPost, 1 }, { pid::springAmt, 0.4f } } },
+            { pid::filterPost, 1 }, { pid::springAmt, 0.4f },
+            { pid::valveDrive, 0.45f } } },
 
         { "Spring Crash", {
             { pid::springAmt, 0.85f }, { pid::springDecay, 0.9f }, { pid::springDrive, 0.7f },
-            { pid::echoMix, 0.15f }, { pid::filterStep, 2 } } },
+            { pid::echoMix, 0.15f }, { pid::filterStep, 2 },
+            { pid::valveDrive, 0.5f }, { pid::valveSag, 0.5f } } },
 
         { "Roots Bass Tighten", {
             { pid::filterStep, 1 }, { pid::impedance, 0.15f }, { pid::magnetism, 0.5f },
             { pid::character, 0.35f }, { pid::echoMix, 0.0f }, { pid::springAmt, 0.0f },
-            { pid::filterGain, 2.0f } } },
+            { pid::filterGain, 2.0f },
+            { pid::valveDrive, 0.35f }, { pid::valveBias, 0.6f }, { pid::valveSag, 0.4f } } },
 
         { "Auto Wah Skank", {
             { pid::filterStep, 5 }, { pid::impedance, 0.75f }, { pid::magnetism, 0.4f },
             { pid::envDepth, 1.6f }, { pid::envSens, 0.65f }, { pid::envSpeed, 0.7f },
-            { pid::echoMix, 0.18f }, { pid::springAmt, 0.18f } } },
+            { pid::echoMix, 0.18f }, { pid::springAmt, 0.18f },
+            { pid::valveDrive, 0.4f } } },
 
         { "Tidal Sweep", {
             { pid::filterStep, 6 }, { pid::impedance, 0.85f }, { pid::lfoOn, 1 },
             { pid::lfoShape, 1 }, { pid::lfoSync, 1 }, { pid::lfoDiv, 8 },
             { pid::lfoDepth, 2.2f }, { pid::artefacts, 0.5f },
-            { pid::echoMix, 0.3f }, { pid::echoFb, 0.6f }, { pid::springAmt, 0.25f } } },
+            { pid::echoMix, 0.3f }, { pid::echoFb, 0.6f }, { pid::springAmt, 0.25f },
+            { pid::valveDrive, 0.3f } } },
 
         { "Siren", {
             { pid::filterStep, 9 }, { pid::impedance, 1.0f }, { pid::magnetism, 1.0f },
             { pid::dynamics, 1.0f }, { pid::character, 0.8f }, { pid::artefacts, 1.0f },
             { pid::echoTime, 180.0f }, { pid::echoFb, 0.9f }, { pid::echoMix, 0.6f },
-            { pid::springAmt, 0.5f } } },
+            { pid::springAmt, 0.5f },
+            { pid::valveDrive, 0.9f }, { pid::valveBias, 0.9f }, { pid::valveSag, 0.8f } } },
     };
     return presets;
 }
@@ -104,6 +131,9 @@ OliverbProcessor::OliverbProcessor()
     echoSyncP   = getRaw<juce::AudioParameterBool> (pid::echoSync);
     echoSendP   = getRaw<juce::AudioParameterBool> (pid::echoSend);
     echoDivP    = getRaw<juce::AudioParameterChoice> (pid::echoDiv);
+    valveOnP    = getRaw<juce::AudioParameterBool> (pid::valveOn);
+    valvePostP  = getRaw<juce::AudioParameterBool> (pid::valvePost);
+    valveEchoP  = getRaw<juce::AudioParameterBool> (pid::valveEcho);
     springOnP   = getRaw<juce::AudioParameterBool> (pid::springOn);
     lfoOnP      = getRaw<juce::AudioParameterBool> (pid::lfoOn);
     lfoSyncP    = getRaw<juce::AudioParameterBool> (pid::lfoSync);
@@ -123,6 +153,11 @@ OliverbProcessor::OliverbProcessor()
     pEchoHiss    = apvts.getRawParameterValue (pid::echoHiss);
     pEchoMix     = apvts.getRawParameterValue (pid::echoMix);
     pEchoAge     = apvts.getRawParameterValue (pid::echoAge);
+    pValveDrive  = apvts.getRawParameterValue (pid::valveDrive);
+    pValveBias   = apvts.getRawParameterValue (pid::valveBias);
+    pValveSag    = apvts.getRawParameterValue (pid::valveSag);
+    pValveTone   = apvts.getRawParameterValue (pid::valveTone);
+    pValveMix    = apvts.getRawParameterValue (pid::valveMix);
     pSpringAmt   = apvts.getRawParameterValue (pid::springAmt);
     pSpringDecay = apvts.getRawParameterValue (pid::springDecay);
     pSpringDrive = apvts.getRawParameterValue (pid::springDrive);
@@ -147,6 +182,7 @@ void OliverbProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     filterL.prepare (osRate);
     filterR.prepare (osRate);
+    valve.prepare (osRate);
     echo.prepare (osRate);
     spring.prepare (osRate);
 
@@ -196,6 +232,16 @@ void OliverbProcessor::pullParameters()
         timeMs = static_cast<float> (60000.0 / juce::jmax (20.0, hostBpm)) * quarters;
         timeMs = juce::jlimit (wh::TapeEcho::kMinTimeMs, wh::TapeEcho::kMaxTimeMs, timeMs);
     }
+
+    // Valve preamp (v2). The same valve also serves as the tape machine's
+    // record amplifier when ECHO AMP is lit, scaled by the drive knob.
+    const bool valveActive = valveOnP->get();
+    valve.setDrive (pValveDrive->load());
+    valve.setBias (pValveBias->load());
+    valve.setSag (pValveSag->load());
+    valve.setTone (pValveTone->load());
+    valve.setMix (pValveMix->load());
+    echo.setValve ((valveActive && valveEchoP->get()) ? 0.35f + 0.65f * pValveDrive->load() : 0.0f);
 
     echo.setTimeMs (timeMs);
     echo.setFeedback (pEchoFb->load());
@@ -265,6 +311,8 @@ void OliverbProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     const bool bypassed = bypassParam != nullptr && bypassParam->get();
     const bool useFilter = filterOnP->get();
     const bool filterAtEnd = filterPostP->get();
+    const bool useValve = valveOnP->get();
+    const bool valveAtEnd = valvePostP->get();
 
     // The oversampler is always fed two channels so mono and stereo hosts
     // share one code path (and one reported latency).
@@ -305,6 +353,9 @@ void OliverbProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             filterL.setModOctaves (mod);
             filterR.setModOctaves (mod);
 
+            if (useValve && ! valveAtEnd)
+                valve.process (l, r);
+
             if (useFilter && ! filterAtEnd)
             {
                 l = filterL.process (l);
@@ -320,10 +371,15 @@ void OliverbProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 r = filterR.process (r);
             }
 
+            if (useValve && valveAtEnd)
+                valve.process (l, r);
+
             L[i] = l;
             R[i] = r;
         }
     }
+
+    valveGlow.store ((! bypassed && useValve) ? valve.glowLevel() : 0.0f);
 
     oversampler->processSamplesDown (block);
 

@@ -106,6 +106,9 @@ public:
     void setSend (bool on) noexcept { sendOpen = on; }
     void setAge (float v) noexcept { age = clampf (v, 0.0f, 1.0f); updateTone(); }
 
+    /** 0 = the original solid-state record amp, 1 = fully valve (v2). */
+    void setValve (float v) noexcept { valve = clampf (v, 0.0f, 1.0f); }
+
     // ---- Audio --------------------------------------------------------------
     void process (float& left, float& right) noexcept
     {
@@ -149,7 +152,22 @@ public:
 
             // Saturation lives in the record amp: this is what stops runaway
             // feedback from exploding and what makes long repeats "cook".
-            rec = asymDrive (rec, 1.0f + age * 0.8f, 0.18f);
+            {
+                const float amp = asymDrive (rec, 1.0f + age * 0.8f, 0.18f);
+                if (valve > 0.0f)
+                {
+                    // The valve record amp (v2): the same triode curve as the
+                    // preamp stage, kept inside a soft clip so the loop still
+                    // limits at the same level as the solid-state model.
+                    const float tube = 0.7f * softClip (triode (rec * (1.0f + valve * 1.1f), 0.62f)
+                                                        / (1.0f + valve * 0.55f));
+                    rec = lerp (amp, tube, valve);
+                }
+                else
+                {
+                    rec = amp;
+                }
+            }
 
             ch.line.write (fixDenorm (rec));
 
@@ -194,7 +212,7 @@ private:
 
     float fs = 44100.0f;
     float feedback = 0.35f, inLevel = 0.8f, outLevel = 0.8f;
-    float hiss = 0.15f, mix = 0.35f, age = 0.45f;
+    float hiss = 0.15f, mix = 0.35f, age = 0.45f, valve = 0.0f;
     float wowPhase = 0.0f, flutPhase = 0.0f;
     bool  sendOpen = true;
 };

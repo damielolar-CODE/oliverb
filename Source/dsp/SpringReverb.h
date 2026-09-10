@@ -53,7 +53,7 @@ public:
 
             for (int i = 0; i < kNumAP; ++i)
             {
-                const int len = static_cast<int> (primes[i] * (fs / 44100.0f)) + 1 + t * 3;
+                const int len = static_cast<int> (static_cast<float> (primes[i]) * (fs / 44100.0f)) + 1 + t * 3;
                 tank.ap[i].prepare (len, 0.62f);
             }
 
@@ -64,7 +64,7 @@ public:
             tank.body.prepare (sampleRate);
             tank.body.set (t == 0 ? 1650.0f : 2100.0f, 0.9f);
             tank.dc.prepare (sampleRate);
-            tank.modPhase = t * 1.7f;
+            tank.modPhase = static_cast<float> (t) * 1.7f;
         }
 
         inputBand.prepare (sampleRate);

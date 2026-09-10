@@ -18,6 +18,7 @@
 #include "../Source/dsp/TapeEcho.h"
 #include "../Source/dsp/SpringReverb.h"
 #include "../Source/dsp/Modulation.h"
+#include "../Source/dsp/ValveStage.h"
 
 #include <cmath>
 #include <cstdio>
@@ -201,10 +202,13 @@ int main()
     }
 
     // -------------------------------------------------------------------------
-    std::printf ("\nEcho: runaway feedback is contained\n");
+    for (float valveAmp : { 0.0f, 1.0f })
     {
+        std::printf ("\nEcho: runaway feedback is contained (%s record amp)\n",
+                     valveAmp > 0.0f ? "valve" : "solid-state");
         wh::TapeEcho e;
         e.prepare (kSR);
+        e.setValve (valveAmp);
         e.setFeedback (1.25f);
         e.setInputLevel (1.5f);
         e.setOutputLevel (1.0f);
@@ -230,6 +234,122 @@ int main()
         check (ok, "self-oscillation never goes non-finite");
         check (peak < 12.0f, "self-oscillation limits into the record amp");
         check (peak > 0.05f, "the echo actually sustains");
+    }
+
+    // -------------------------------------------------------------------------
+    std::printf ("\nValve: unity at zero drive, bit-exact at mix 0\n");
+    {
+        wh::ValveStage v;
+        v.prepare (kSR);
+        v.setDrive (0.0f);
+        v.setBias (0.5f);
+        v.setSag (0.0f);
+        v.setTone (0.0f);
+        v.setMix (1.0f);
+
+        double inE = 0.0, outE = 0.0;
+        for (int i = 0; i < static_cast<int> (kSR); ++i)
+        {
+            const float x = 0.3f * std::sin (2.0f * wh::kPi * 220.0f * i / (float) kSR);
+            float l = x, r = x;
+            v.process (l, r);
+            if (i > static_cast<int> (kSR * 0.25))
+            {
+                inE  += x * x;
+                outE += l * l;
+            }
+        }
+        const float gainDb = 10.0f * static_cast<float> (std::log10 (outE / inE));
+        std::printf ("  gain at zero drive: %.2f dB\n", gainDb);
+        check (std::fabs (gainDb) < 1.0f, "zero drive is within 1 dB of unity");
+
+        v.setMix (0.0f);
+        v.setDrive (1.0f);
+        bool exact = true;
+        for (int i = 0; i < 4096; ++i)
+        {
+            const float x = std::sin (0.01f * i);
+            float l = x, r = x;
+            v.process (l, r);
+            if (l != x || r != x) { exact = false; break; }
+        }
+        check (exact, "mix 0 passes the dry signal untouched");
+    }
+
+    // -------------------------------------------------------------------------
+    std::printf ("\nValve: bias produces even harmonics\n");
+    {
+        auto secondHarmonicDb = [] (float bias, float drive)
+        {
+            wh::ValveStage v;
+            v.prepare (kSR);
+            v.setDrive (drive);
+            v.setBias (bias);
+            v.setSag (0.0f);
+            v.setTone (0.0f);
+            v.setMix (1.0f);
+
+            const double w = 2.0 * kPi * 220.0 / kSR;   // 220 cycles per second: leakage-free
+            const int settle = static_cast<int> (kSR * 0.5);
+            const int measure = static_cast<int> (kSR);
+
+            for (int i = 0; i < settle; ++i)
+            {
+                float l = 0.5f * static_cast<float> (std::sin (w * i)), r = l;
+                v.process (l, r);
+            }
+
+            double re1 = 0.0, im1 = 0.0, re2 = 0.0, im2 = 0.0;
+            for (int i = 0; i < measure; ++i)
+            {
+                const double ph = w * (settle + i);
+                float l = 0.5f * static_cast<float> (std::sin (ph)), r = l;
+                v.process (l, r);
+                re1 += l * std::cos (ph);       im1 += l * std::sin (ph);
+                re2 += l * std::cos (2.0 * ph); im2 += l * std::sin (2.0 * ph);
+            }
+            const double m1 = std::sqrt (re1 * re1 + im1 * im1);
+            const double m2 = std::sqrt (re2 * re2 + im2 * im2);
+            return 20.0f * static_cast<float> (std::log10 (std::max (1.0e-12, m2 / m1)));
+        };
+
+        const float clean = secondHarmonicDb (0.0f, 0.0f);
+        const float cold  = secondHarmonicDb (0.0f, 0.5f);
+        const float hot   = secondHarmonicDb (1.0f, 0.5f);
+        std::printf ("  2nd harmonic vs fundamental   clean: %6.1f dB   cold bias: %6.1f dB   hot bias: %6.1f dB\n",
+                     clean, cold, hot);
+        check (clean < -36.0f, "zero drive is essentially clean (under ~1.5% 2nd harmonic)");
+        check (hot > -30.0f, "hot bias puts the 2nd harmonic within 30 dB of the fundamental");
+        check (hot > cold + 3.0f, "hotter bias means more even-order content");
+    }
+
+    // -------------------------------------------------------------------------
+    std::printf ("\nValve: abusive settings stay finite\n");
+    {
+        wh::ValveStage v;
+        v.prepare (kSR);
+        v.setDrive (1.0f);
+        v.setBias (1.0f);
+        v.setSag (1.0f);
+        v.setTone (1.0f);
+        v.setMix (1.0f);
+
+        wh::Noise n;
+        bool ok = true;
+        float peak = 0.0f;
+        for (int i = 0; i < static_cast<int> (kSR * 5); ++i)
+        {
+            // Noise, DC offset and a square wave at +20 dB: nothing a real input should be.
+            float l = n.next() * 10.0f + 3.0f + ((i / 200) % 2 ? 8.0f : -8.0f);
+            float r = -l;
+            v.process (l, r);
+            if (! std::isfinite (l) || ! std::isfinite (r)) { ok = false; break; }
+            peak = std::max (peak, std::max (std::fabs (l), std::fabs (r)));
+        }
+        std::printf ("  peak: %.3f   lamp: %.2f\n", peak, v.glowLevel());
+        check (ok, "valve never goes non-finite");
+        check (peak < 8.0f, "valve output stays bounded");
+        check (v.glowLevel() > 0.2f, "the lamp lights when the valve is driven");
     }
 
     // -------------------------------------------------------------------------

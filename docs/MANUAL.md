@@ -1,11 +1,15 @@
-# OLIVERB — User Manual
+# OLIVERB MK II — User Manual
 
-*Version 1.0.0*
+*Version 2.0.0*
 
-OLIVERB is three pieces of 1960s dub hardware in one plug-in: a passive inductor-based
-high-pass filter (the "Big Knob" of King Tubby's mixing desk), a two-track tape machine
-patched into itself as an echo, and a spring reverb tank driven harder than its designer
-intended. Use one section or all three — each has its own on/off switch.
+OLIVERB is four pieces of 1960s dub hardware in one plug-in: a valve preamp, a passive
+inductor-based high-pass filter (the "Big Knob" of King Tubby's mixing desk), a two-track
+tape machine patched into itself as an echo, and a spring reverb tank driven harder than
+its designer intended. Use one section or all four — each has its own on/off switch.
+
+**New in MK II:** the **Valve** section — a triode preamp with bias, supply sag and an
+output transformer, for real even-harmonic tube saturation. Put it at the front of the
+chain or the back, and let the same valve drive the tape machine's record amp.
 
 **Formats:** VST3, AU, Standalone · **Platforms:** macOS (universal), Windows, Linux · **License:** MIT
 
@@ -53,24 +57,32 @@ After installing on any platform, rescan plug-ins in your DAW. OLIVERB appears u
 
 1. Insert OLIVERB on a drum loop or a full mix.
 2. Open the preset menu and pick **Waterhouse Rockers**. That's the classic chain:
-   filter into echo into spring.
-3. Grab the big **Frequency** dial and sweep it up and back down. The corner peak,
+   valve into filter into echo into spring.
+3. Turn the valve **Drive** up and watch the glow lamp: the sound thickens and compresses
+   but doesn't get louder. That's the tube.
+4. Grab the big **Frequency** dial and sweep it up and back down. The corner peak,
    the switch clacks and the way the echo tail follows the dial — that's the plug-in.
-4. Turn **Feedback** up past 80 % and tap **Send** to *Held*: the input stops feeding
+5. Turn **Feedback** up past 80 % and tap **Send** to *Held*: the input stops feeding
    the machine but the loop keeps regenerating. That's a dub-out.
-5. Tap Send back to *Dub* and carry on.
+6. Tap Send back to *Dub* and carry on.
 
 ---
 
 ## 3. Signal flow
 
 ```
-              ┌───────────  PRE (default)  ───────────┐
-   input ──►  FILTER  ──►  ECHO  ──►  SPRING  ──►  OUTPUT
-              └── or POST: ECHO ──► SPRING ──► FILTER ─┘
+                        ┌───────────  PRE (default)  ───────────┐
+   input ──► VALVE ──►  FILTER  ──►  ECHO  ──►  SPRING  ──►  OUTPUT
+             (input)    └── or POST: ECHO ──► SPRING ──► FILTER ─┘
+                                                   └─► VALVE (output) ─┘
 ```
 
-The **Pre / Post** switch is the most important routing decision in the plug-in:
+The **Valve** sits at the front by default (its *Input* position), colouring everything
+that follows; switch it to *Output* and it becomes a master valve stage across the whole
+mix, echo tails and spring included. With **Echo Amp** lit, the tape machine's record
+amplifier is also a valve, so repeats cook in the same flavour.
+
+The filter's **Pre / Post** switch is the other big routing decision:
 
 - **Pre** — the filter feeds the echo, so every repeat inherits the dial position, and
   sweeping the dial drags the echo tail with it. This is the performance position.
@@ -82,7 +94,30 @@ host automatically, so tracks stay aligned.
 
 ---
 
-## 4. The Filter — Big Dial
+## 4. The Valve — Preamp
+
+A single-ended triode line amplifier with an output transformer. Its transfer curve is
+asymmetric — grid conduction flattens the positive swing quickly, cut-off softens the
+negative swing slowly — which is why it produces even harmonics (warmth) rather than the
+odd-only fuzz of a symmetric clipper. Level is compensated as you drive it, so the knob
+changes the *shape* of the sound far more than the loudness.
+
+| Control | Range (default) | What it does |
+|---|---|---|
+| **Drive** | 0–100 % (35 %) | Gain into the grid, up to +36 dB. Zero is a clean line amp (about 1 % second harmonic); full is a valve on its knees. |
+| **Bias** | 0–100 % (50 %) | The operating point. Cold is near-symmetric and stays clean until pushed; hot is asymmetric from the first volt and thick at any level. |
+| **Sag** | 0–100 % (30 %) | The supply giving way under load. Gain drops and bias goes colder as the signal rises: compression, bloom, and a stage that pushes back. |
+| **Tone** | 0–100 % (40 %) | The output transformer. Iron bump below 100 Hz, loss at the very top (19 kHz down to 6.5 kHz), and the core rounding off what's still too big for it. |
+| **Mix** | 0–100 % (100 %) | Parallel blend against the dry signal. |
+| **Output** | Input / Output (Input) | *Input* puts the valve first in the chain; *Output* puts it last, after the spring. |
+| **Echo Amp** | (On) | Hands the same valve curve to the tape machine's record amplifier, scaled by Drive. Off restores the original solid-state record amp. |
+
+The **glow** lamp next to the knobs shows how hard the valve is actually working — a
+useful thing to watch when Sag is doing its job.
+
+---
+
+## 5. The Filter — Big Dial
 
 A passive, inductor-based high-pass, third order (18 dB/octave). No active parts — its
 character comes from termination and core saturation, not resonance.
@@ -117,7 +152,7 @@ character comes from termination and core saturation, not resonance.
 
 ---
 
-## 5. The Echo — Two Track
+## 6. The Echo — Two Track
 
 A studio tape recorder used as an echo: record head → tape → replay head, output patched
 back to the input. Each pass through the loop loses a little top end and gains a little
@@ -138,7 +173,7 @@ saturation, so long tails get darker and thicker rather than louder.
 
 ---
 
-## 6. Mod — LFO / Envelope
+## 7. Mod — LFO / Envelope
 
 Both modulation sources push the **Frequency dial**, in octaves relative to the switch
 position. Everything the filter does — corner peak, core saturation, character — rides
@@ -168,7 +203,7 @@ the filter is already doing.
 
 ---
 
-## 7. The Spring — Tank
+## 8. The Spring — Tank
 
 A two-tank spring reverb. Springs are dispersive — highs travel through the coil faster
 than lows — so a transient smears into the characteristic descending *boing* that room
@@ -182,7 +217,7 @@ reverbs never produce.
 
 ---
 
-## 8. Global
+## 9. Global
 
 | Control | Range (default) | What it does |
 |---|---|---|
@@ -194,15 +229,18 @@ a filter, just an echo, or just a spring.
 
 ---
 
-## 9. Factory presets
+## 10. Factory presets
 
 | Preset | What it shows |
 |---|---|
-| **Init** | Everything at defaults. |
-| **Waterhouse Rockers** | The classic chain at working settings — the place to start. |
+| **Init** | Everything at defaults — the valve on at a gentle 35 %. |
+| **Waterhouse Rockers** | The classic chain at working settings, valve warm — the place to start. |
+| **Valve Warmth** | Valve only, everything else off: a tube line amp on a bus or a mix. |
+| **Hot Preamp** | Valve only, driven hard with heavy sag: a mic pre on its knees. |
 | **Snare Throw** | High feedback, hot input: hit it with one snare and ride the tail. |
 | **Big Dial Sweep** | Open termination, heavy magnetism, audible switch clacks — for performing the dial. |
-| **Tape Wash** | Long, worn, hissy repeats that melt into the spring. |
+| **Tape Wash** | Long, worn, hissy repeats that melt into the spring, valve tone thick. |
+| **Glowing Tape** | The valve at the *output*, driven, with a hot tape loop — everything cooks together. |
 | **Held Echo (Dub Out)** | Send is *Held* and feedback at unity: an infinite loop, filter across the output. Open the Send to let new signal in. |
 | **Spring Crash** | The tank up front, driven hard. |
 | **Roots Bass Tighten** | Filter only, step 1, a little core saturation — a bass-tightening tool, no wet signal at all. |
@@ -212,8 +250,14 @@ a filter, just an echo, or just a spring.
 
 ---
 
-## 10. Techniques
+## 11. Techniques
 
+- **Valve as a bus tool.** Load *Valve Warmth*. Drive 30–50 %, Bias 60 %, Sag 20 %: glue
+  and weight without obvious distortion. Watch the glow — it should flicker, not burn.
+- **Pushed preamp.** Drive past 70 % with Sag up: the stage compresses into itself and
+  blooms after transients. Bias hot for thickness, cold for a cleaner crunch.
+- **Valve at the back.** Flip *Output* so the valve sits after the spring: echo tails and
+  splashes get rounded off by the same tube, and hot feedback stops sounding digital.
 - **The dub throw.** Feedback high, Mix high, Send on *Dub*. Un-mute (or hot-cue) one
   hit — a snare, a vocal word — then flip Send to *Held*. The hit circulates and decays
   on its own while the dry signal carries on. Flip back to *Dub* for the next throw.
@@ -231,7 +275,7 @@ a filter, just an echo, or just a spring.
 
 ---
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Symptom | Fix |
 |---|---|
@@ -244,8 +288,9 @@ a filter, just an echo, or just a spring.
 
 ---
 
-## 12. Specifications
+## 13. Specifications
 
+- **Valve:** single-ended triode model, unity-normalised asymmetric transfer, +36 dB drive range, level-compensated, supply sag, transformer voicing
 - **Formats:** VST3, Audio Unit (macOS), Standalone application
 - **Platforms:** macOS 10.13+ (universal: Apple silicon + Intel), Windows 10+ (64-bit), Linux
 - **Processing:** 32-bit float, 2× oversampled (half-band polyphase IIR), latency-compensated

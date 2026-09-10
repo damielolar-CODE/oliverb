@@ -33,6 +33,16 @@ inline constexpr const char* echoHiss    = "echoHiss";
 inline constexpr const char* echoMix     = "echoMix";
 inline constexpr const char* echoAge     = "echoAge";
 
+// Valve preamp (v2)
+inline constexpr const char* valveOn     = "valveOn";
+inline constexpr const char* valveDrive  = "valveDrive";
+inline constexpr const char* valveBias   = "valveBias";
+inline constexpr const char* valveSag    = "valveSag";
+inline constexpr const char* valveTone   = "valveTone";
+inline constexpr const char* valveMix    = "valveMix";
+inline constexpr const char* valvePost   = "valvePost";
+inline constexpr const char* valveEcho   = "valveEcho";
+
 // Spring
 inline constexpr const char* springOn    = "springOn";
 inline constexpr const char* springAmt   = "springAmount";
@@ -148,6 +158,21 @@ inline juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
               [pct] (float v, int) { return pct (v); });
     addFloat (pid::echoAge, "Wear", { 0.0f, 1.0f }, 0.45f,
               [pct] (float v, int) { return pct (v); });
+
+    // ---- Valve preamp (v2) --------------------------------------------------
+    addBool (pid::valveOn, "Valve On", true);
+    addFloat (pid::valveDrive, "Valve Drive", { 0.0f, 1.0f }, 0.35f,
+              [pct] (float v, int) { return pct (v); });
+    addFloat (pid::valveBias, "Valve Bias", { 0.0f, 1.0f }, 0.50f,
+              [pct] (float v, int) { return pct (v); });
+    addFloat (pid::valveSag, "Valve Sag", { 0.0f, 1.0f }, 0.30f,
+              [pct] (float v, int) { return pct (v); });
+    addFloat (pid::valveTone, "Valve Tone", { 0.0f, 1.0f }, 0.40f,
+              [pct] (float v, int) { return pct (v); });
+    addFloat (pid::valveMix, "Valve Mix", { 0.0f, 1.0f }, 1.0f,
+              [pct] (float v, int) { return pct (v); });
+    addBool (pid::valvePost, "Valve Position", false, "Output", "Input");
+    addBool (pid::valveEcho, "Valve Echo Amp", true);
 
     // ---- Spring -------------------------------------------------------------
     addBool (pid::springOn, "Spring On", true);

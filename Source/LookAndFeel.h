@@ -18,6 +18,8 @@ inline const juce::Colour red          { 0xffb8372b };
 inline const juce::Colour redBright    { 0xffd9503f };
 inline const juce::Colour brass        { 0xffc9a227 };
 inline const juce::Colour green        { 0xff4f8a5b };
+inline const juce::Colour amber        { 0xffd98b2b };
+inline const juce::Colour violet       { 0xff7a6db0 };
 inline const juce::Colour knobBody     { 0xff23201d };
 inline const juce::Colour knobEdge     { 0xff3a332e };
 } // namespace wh::colours

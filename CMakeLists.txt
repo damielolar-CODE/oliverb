@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Oliverb VERSION 1.0.0 LANGUAGES C CXX)
+project(Oliverb VERSION 2.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,7 +47,7 @@ juce_add_plugin(Oliverb
     PLUGIN_CODE                 Olvb
     FORMATS                     VST3 AU Standalone
     PRODUCT_NAME                "OLIVERB"
-    DESCRIPTION                 "Passive high-pass filter, tape echo and spring tank"
+    DESCRIPTION                 "Valve preamp, passive high-pass filter, tape echo and spring tank"
     IS_SYNTH                    FALSE
     NEEDS_MIDI_INPUT            FALSE
     NEEDS_MIDI_OUTPUT           FALSE

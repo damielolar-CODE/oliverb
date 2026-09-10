@@ -1,6 +1,10 @@
-# OLIVERB
+# OLIVERB MK II
 
-**A passive high-pass filter, a two-track tape echo, and a spring tank — the three boxes that made dub.**
+**A valve preamp, a passive high-pass filter, a two-track tape echo, and a spring tank — the boxes that made dub.**
+
+Version 2 adds a **triode valve stage** — even-harmonic saturation with bias, supply sag
+and an output transformer — in front of or behind the chain, and the same valve can serve
+as the tape machine's record amplifier. Every original section is unchanged.
 
 VST3 / AU / Standalone. macOS, Windows, Linux. C++17 + JUCE 8.
 
@@ -19,6 +23,7 @@ three well-documented pieces of 1960s hardware:
 
 | Section | Modelled on |
 |---|---|
+| **Valve** *(v2)* | A single-ended triode line amplifier with an output transformer — the valve gain stage that sat in front of, and behind, everything in a 1960s studio |
 | **Filter** | A passive, inductor-based, stepped variable high-pass filter of the Altec 9069B type — the "Big Knob" bolted to the top right of King Tubby's MCI desk |
 | **Echo** | A 2-track studio recorder used as an echo, with the output patched back to the input |
 | **Spring** | A two-tank spring reverb, run hotter than its designer intended |
@@ -47,7 +52,7 @@ Install by dropping the `.vst3` (and `.component` on macOS) into:
 macOS will refuse to open an unsigned plug-in the first time. Right-click → Open, or run
 `xattr -dr com.apple.quarantine /path/to/Oliverb.vst3`.
 
-Tag a commit `v1.0.0` and the same workflow publishes a GitHub Release with the zips attached.
+Tag a commit `v2.0.0` and the same workflow publishes a GitHub Release with the zips attached.
 
 ---
 
@@ -71,14 +76,28 @@ Verify the DSP without opening a DAW:
 cmake --build build --target dsp_test && ./build/dsp_test
 ```
 
-That runs the filter, echo, and spring through measured checks — filter slope, corner
-peaking, stability under abuse, echo self-oscillation, spring decay — and prints a pass/fail
+That runs the valve, filter, echo, and spring through measured checks — harmonic content,
+filter slope, corner peaking, stability under abuse, echo self-oscillation, spring decay — and prints a pass/fail
 table. Run it after any DSP edit; it catches an unstable feedback loop in one second instead
 of in your monitors.
 
 ---
 
 ## The controls
+
+### Valve — Preamp *(v2)*
+
+| Control | What it does |
+|---|---|
+| **Drive** | Gain into the grid, up to +36 dB. Level is compensated on the way out, so Drive changes the *shape* of the sound far more than its loudness. |
+| **Bias** | The operating point. Cold = near-symmetric, clean until pushed. Hot = asymmetric from the first volt, thick at any level — this is the even-harmonic knob. |
+| **Sag** | The supply giving way under load: gain drops and bias goes colder as the signal rises. Compression and bloom. |
+| **Tone** | The output transformer: iron bump below 100 Hz, loss at the very top, and the core rounding off what's still too big for it. |
+| **Mix** | Parallel blend. |
+| **Output** | Puts the valve at the *end* of the chain (after the spring) instead of the front. |
+| **Echo Amp** | Hands the same valve curve to the tape machine's record amplifier, scaled by Drive. |
+
+The **glow** lamp shows how hard the valve is actually working.
 
 ### Filter — Big Dial
 
@@ -126,7 +145,8 @@ Spring (amount), Tension (decay), Drive (into the send transducer, where the cra
 
 ```
 Source/
-  dsp/Utils.h              primitives: delay line, allpass, SVF, envelopes, saturation
+  dsp/Utils.h              primitives: delay line, allpass, SVF, envelopes, saturation, triode curve
+  dsp/ValveStage.h         the valve preamp (v2)
   dsp/PassiveHighPass.h    the filter — start here
   dsp/TapeEcho.h           the echo
   dsp/SpringReverb.h       the tank

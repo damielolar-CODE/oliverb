@@ -11,6 +11,7 @@
 #include "dsp/TapeEcho.h"
 #include "dsp/SpringReverb.h"
 #include "dsp/Modulation.h"
+#include "dsp/ValveStage.h"
 
 class OliverbProcessor : public juce::AudioProcessor
 {
@@ -53,6 +54,9 @@ public:
     /** Post-filter output level, 0..1, for the editor's meter. */
     std::atomic<float> meterL { 0.0f }, meterR { 0.0f };
 
+    /** How hard the valve is working, 0..1, for the front-panel lamp. */
+    std::atomic<float> valveGlow { 0.0f };
+
 private:
     void pullParameters();
 
@@ -72,6 +76,9 @@ private:
     juce::AudioParameterBool*   echoSyncP     = nullptr;
     juce::AudioParameterBool*   echoSendP     = nullptr;
     juce::AudioParameterChoice* echoDivP      = nullptr;
+    juce::AudioParameterBool*   valveOnP      = nullptr;
+    juce::AudioParameterBool*   valvePostP    = nullptr;
+    juce::AudioParameterBool*   valveEchoP    = nullptr;
     juce::AudioParameterBool*   springOnP     = nullptr;
     juce::AudioParameterBool*   lfoOnP        = nullptr;
     juce::AudioParameterBool*   lfoSyncP      = nullptr;
@@ -91,6 +98,11 @@ private:
     std::atomic<float>* pEchoHiss  = nullptr;
     std::atomic<float>* pEchoMix   = nullptr;
     std::atomic<float>* pEchoAge   = nullptr;
+    std::atomic<float>* pValveDrive = nullptr;
+    std::atomic<float>* pValveBias  = nullptr;
+    std::atomic<float>* pValveSag   = nullptr;
+    std::atomic<float>* pValveTone  = nullptr;
+    std::atomic<float>* pValveMix   = nullptr;
     std::atomic<float>* pSpringAmt = nullptr;
     std::atomic<float>* pSpringDecay = nullptr;
     std::atomic<float>* pSpringDrive = nullptr;
@@ -103,6 +115,7 @@ private:
 
     // DSP
     wh::PassiveHighPass filterL, filterR;
+    wh::ValveStage      valve;
     wh::TapeEcho        echo;
     wh::SpringReverb    spring;
     wh::LFO             lfo;
