@@ -7,6 +7,7 @@
 
 #include "PluginProcessor.h"
 #include "LookAndFeel.h"
+#include "Updates/DeestechUpdate.h"
 
 // -----------------------------------------------------------------------------
 /** A knob with its silkscreen caption above and its value underneath. */
@@ -111,6 +112,9 @@ private:
     std::unique_ptr<ButtonAtt> valveOnAtt, valvePostAtt, valveEchoAtt;
     std::unique_ptr<KnobBox> valveDrive, valveBias, valveSag, valveTone, valveMix;
     std::unique_ptr<GlowLamp> glowLamp;
+
+    // UPDATE x.y.z pill next to the MK II legend: invisible until deestechholdings.com/updates.json lists a newer OLIVERB
+    std::unique_ptr<dtupdate::UpdatePill> updatePill;
 
     // Filter
     juce::ToggleButton filterOnButton { "FILTER" }, typeButton { "BANK B" }, postButton { "POST" };

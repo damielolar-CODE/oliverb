@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Oliverb VERSION 2.0.0 LANGUAGES C CXX)
+project(Oliverb VERSION 2.0.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -62,6 +62,7 @@ target_sources(Oliverb PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
     Source/LookAndFeel.cpp
+    Source/Updates/DeestechUpdate.cpp
 )
 
 target_compile_definitions(Oliverb PUBLIC
@@ -88,3 +89,19 @@ target_link_libraries(Oliverb PRIVATE
 # -----------------------------------------------------------------------------
 add_executable(dsp_test Tests/dsp_test.cpp)
 target_compile_features(dsp_test PRIVATE cxx_std_17)
+
+# -----------------------------------------------------------------------------
+# OliverbSnapshot — editor snapshot tool (dev only, never shipped): renders the editor to a PNG offscreen.
+# -----------------------------------------------------------------------------
+option(WH_SNAPSHOT_TOOL "Build the editor snapshot tool" OFF)
+if(WH_SNAPSHOT_TOOL)
+    juce_add_console_app(OliverbSnapshot PRODUCT_NAME "OliverbSnapshot")
+    target_sources(OliverbSnapshot PRIVATE Tools/snapshot.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp
+        Source/LookAndFeel.cpp Source/Updates/DeestechUpdate.cpp)
+    target_include_directories(OliverbSnapshot PRIVATE Source)
+    target_compile_definitions(OliverbSnapshot PRIVATE
+        JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_STANDALONE_APPLICATION=1 JUCE_MODAL_LOOPS_PERMITTED=1
+        JucePlugin_Name="OLIVERB" JucePlugin_VersionString="${PROJECT_VERSION}" JucePlugin_Build_Standalone=1)
+    target_link_libraries(OliverbSnapshot PRIVATE juce::juce_audio_utils juce::juce_dsp juce::juce_gui_extra
+        PUBLIC juce::juce_recommended_config_flags)
+endif()

@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=OLIVERB
-AppVersion=2.0.0
+AppVersion=2.0.1
 AppPublisher=Deestech
 DefaultDirName={commoncf64}\VST3
 DisableDirPage=yes

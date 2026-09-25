@@ -255,6 +255,16 @@ OliverbEditor::OliverbEditor (OliverbProcessor& p)
     glowLamp = std::make_unique<GlowLamp> (proc);
     content.addAndMakeVisible (*glowLamp);
 
+    {
+        dtupdate::Style st;
+        st.pillFill = amber; st.pillText = juce::Colours::white;
+        st.panelFill = panel; st.panelText = cream; st.panelDim = creamDim; st.accent = amber;
+        st.font = OliverbLNF::faceFont (11.0f, true);
+        st.corner = 4.0f;
+        updatePill = std::make_unique<dtupdate::UpdatePill> ("oliverb", JucePlugin_VersionString, st);
+        content.addChildComponent (*updatePill);
+    }
+
     // ---- Filter -------------------------------------------------------------
     makeToggle (filterOnButton, filterOnAtt, pid::filterOn);
     makeToggle (typeButton, typeAtt, pid::filterType);
@@ -389,6 +399,8 @@ void OliverbEditor::layoutContent()
 
     // ---- Header -------------------------------------------------------------
     auto header = full.removeFromTop (58);
+    if (updatePill != nullptr)   // right of the "OLIVERB  MK II" wordmark
+        updatePill->setBounds (header.getX() + 196, header.getY() + 5, juce::jmax (110, updatePill->preferredWidth (22)), 22);
     auto headerRight = header.removeFromRight (330);
 
     outputKnob->setBounds (headerRight.removeFromRight (78).withSizeKeepingCentre (78, 58));
