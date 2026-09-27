@@ -156,8 +156,8 @@ Source/
   dsp/SpringReverb.h       the tank
   Parameters.h             every parameter's ID, range, default, and display format
   PluginProcessor.cpp      routing, oversampling, presets
-  PluginEditor.cpp         layout and painting
-  LookAndFeel.cpp          the faceplate
+  PluginEditor.cpp         the STUDIO SERIES faceplate (layout)
+  ui/                      the Deestech rack kit (synced from Deestronix: scripts/sync_kit.sh there)
 Tests/dsp_test.cpp         the DSP checks
 docs/DESIGN.md             how each model works and what to change to change the sound
 ```

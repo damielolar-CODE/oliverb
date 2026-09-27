@@ -58,12 +58,20 @@ juce_add_plugin(Oliverb
     AU_MAIN_TYPE                kAudioUnitType_Effect
 )
 
+# ---- the STUDIO SERIES rack kit (Source/ui, synced from Deestronix/Plugins/Common by Deestronix/scripts/sync_kit.sh)
+#      and its fonts + walnut texture (Resources/ui); the BinaryData names are the kit's
+juce_add_binary_data(OliverbAssets SOURCES
+    Resources/ui/Righteous.ttf Resources/ui/SpaceMono.ttf Resources/ui/SpaceMonoBold.ttf Resources/ui/fx_wood.png
+    Resources/ui/Oswald.ttf Resources/ui/BebasNeue.ttf)
+
 target_sources(Oliverb PRIVATE
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp
-    Source/LookAndFeel.cpp
     Source/Updates/DeestechUpdate.cpp
+    Source/ui/DxTheme.cpp
+    Source/ui/DxWidgets.cpp
 )
+target_include_directories(Oliverb PRIVATE Source/ui)
 
 target_compile_definitions(Oliverb PUBLIC
     JUCE_WEB_BROWSER=0
@@ -75,6 +83,7 @@ target_compile_definitions(Oliverb PUBLIC
 )
 
 target_link_libraries(Oliverb PRIVATE
+    OliverbAssets
     juce::juce_audio_utils
     juce::juce_dsp
     PUBLIC
@@ -97,11 +106,11 @@ option(WH_SNAPSHOT_TOOL "Build the editor snapshot tool" OFF)
 if(WH_SNAPSHOT_TOOL)
     juce_add_console_app(OliverbSnapshot PRODUCT_NAME "OliverbSnapshot")
     target_sources(OliverbSnapshot PRIVATE Tools/snapshot.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp
-        Source/LookAndFeel.cpp Source/Updates/DeestechUpdate.cpp)
-    target_include_directories(OliverbSnapshot PRIVATE Source)
+        Source/Updates/DeestechUpdate.cpp Source/ui/DxTheme.cpp Source/ui/DxWidgets.cpp)
+    target_include_directories(OliverbSnapshot PRIVATE Source Source/ui)
     target_compile_definitions(OliverbSnapshot PRIVATE
         JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_STANDALONE_APPLICATION=1 JUCE_MODAL_LOOPS_PERMITTED=1
         JucePlugin_Name="OLIVERB" JucePlugin_VersionString="${PROJECT_VERSION}" JucePlugin_Build_Standalone=1)
-    target_link_libraries(OliverbSnapshot PRIVATE juce::juce_audio_utils juce::juce_dsp juce::juce_gui_extra
+    target_link_libraries(OliverbSnapshot PRIVATE OliverbAssets juce::juce_audio_utils juce::juce_dsp juce::juce_gui_extra
         PUBLIC juce::juce_recommended_config_flags)
 endif()
