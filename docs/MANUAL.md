@@ -1,6 +1,7 @@
 # OLIVERB MK II — User Manual
 
-*Version 2.0.0*
+*Version 2.1.0 — Studio Series faceplate*  
+Printable versions: [OLIVERB-Manual.pdf](OLIVERB-Manual.pdf) · one-page [OLIVERB-QuickGuide.pdf](OLIVERB-QuickGuide.pdf)
 
 OLIVERB is four pieces of 1960s dub hardware in one plug-in: a valve preamp, a passive
 inductor-based high-pass filter (the "Big Knob" of King Tubby's mixing desk), a two-track
@@ -11,7 +12,40 @@ its designer intended. Use one section or all four — each has its own on/off s
 output transformer, for real even-harmonic tube saturation. Put it at the front of the
 chain or the back, and let the same valve drive the tape machine's record amp.
 
+**New in 2.1.0:** the Deestech **Studio Series** faceplate — same sound, same parameters,
+sessions reload exactly as saved.
+
 **Formats:** VST3, AU, Standalone · **Platforms:** macOS (universal), Windows, Linux · **License:** MIT
+
+---
+
+## The faceplate
+
+![OLIVERB 2.1.0 faceplate](interface.png)
+
+An oxblood panel between walnut cheeks, with six modules stacked in signal order. Each is
+keyed by the colour of its knob caps and lamp buttons:
+
+| Module | What lives there |
+|---|---|
+| **Header** | Preset menu, **Bypass**, and the UPDATE pill when a new version is out |
+| **Valve** (amber) | Valve / At Input·At Output / Echo Amp lamps; Drive, Bias, Sag, Tone, Mix; the glowing 12AX7 |
+| **Filter · Big Dial** (red) | The big Frequency dial (its scale shows the chosen bank's eleven corners); Impedance, Magnetism, Character, Dynamics, Artefacts, Gain; Filter / Bank A·B / Pre·Post lamps |
+| **Echo · Two Track** (gold) | Echo / Sync / Dub Send lamps; Time, Feedback, Input, Output, Hiss, Mix, Wear |
+| **Mod · LFO / Envelope** (lilac) | LFO / Sync lamps; Rate, LFO Depth, Env Depth, Sens, Speed; Shape menu |
+| **Spring Tank** (green) | Spring lamp; Spring, Tension, Drive |
+| **Master** | L/R peak meters, the live signal-chain readout, the Output knob |
+
+Two-way lamps name their current state (e.g. **AT INPUT** dark, **AT OUTPUT** lit). With
+**Sync** lit, the echo's Time knob and the LFO's Rate knob become note-division menus. Hover,
+drag or scroll a knob to see its exact value.
+
+**Resizing:** drag the bottom-right corner to scale the window from 60 % to 150 % of its
+980 × 930 base size; everything is vector-drawn and stays sharp.
+
+**Update notices:** while its window is open, OLIVERB checks deestechholdings.com/updates.json
+at most once a day. If a newer version exists, an amber **UPDATE x.y.z** pill appears in the
+header, left of the preset menu — click it for the notes, DOWNLOAD, or SKIP THIS VERSION.
 
 ---
 
@@ -49,7 +83,7 @@ about an unrecognised app: click **More info → Run anyway**. Manual install: c
 Download `OLIVERB-Linux.zip` and copy `OLIVERB.vst3` to `~/.vst3/`.
 
 After installing on any platform, rescan plug-ins in your DAW. OLIVERB appears under
-**Deestech** in the Fx / Filter / Delay / Reverb categories.
+**Deestech** in the Fx / Filter / Delay / Reverb categories. Upgrading: install over the top.
 
 ---
 
@@ -58,13 +92,13 @@ After installing on any platform, rescan plug-ins in your DAW. OLIVERB appears u
 1. Insert OLIVERB on a drum loop or a full mix.
 2. Open the preset menu and pick **Waterhouse Rockers**. That's the classic chain:
    valve into filter into echo into spring.
-3. Turn the valve **Drive** up and watch the glow lamp: the sound thickens and compresses
+3. Turn the valve **Drive** up and watch the 12AX7 glow: the sound thickens and compresses
    but doesn't get louder. That's the tube.
 4. Grab the big **Frequency** dial and sweep it up and back down. The corner peak,
    the switch clacks and the way the echo tail follows the dial — that's the plug-in.
-5. Turn **Feedback** up past 80 % and tap **Send** to *Held*: the input stops feeding
-   the machine but the loop keeps regenerating. That's a dub-out.
-6. Tap Send back to *Dub* and carry on.
+5. Turn **Feedback** up past 80 % and tap **Dub Send** so it goes dark and reads *Held*:
+   the input stops feeding the machine but the loop keeps regenerating. That's a dub-out.
+6. Tap it back to *Dub Send* and carry on.
 
 ---
 
@@ -77,8 +111,8 @@ After installing on any platform, rescan plug-ins in your DAW. OLIVERB appears u
                                                    └─► VALVE (output) ─┘
 ```
 
-The **Valve** sits at the front by default (its *Input* position), colouring everything
-that follows; switch it to *Output* and it becomes a master valve stage across the whole
+The **Valve** sits at the front by default (*At Input*), colouring everything
+that follows; light *At Output* and it becomes a master valve stage across the whole
 mix, echo tails and spring included. With **Echo Amp** lit, the tape machine's record
 amplifier is also a valve, so repeats cook in the same flavour.
 
@@ -88,6 +122,8 @@ The filter's **Pre / Post** switch is the other big routing decision:
   sweeping the dial drags the echo tail with it. This is the performance position.
 - **Post** — the filter sits across the finished signal, echo tails included. Use it
   to carve the whole wet mix at once.
+
+The chain readout in the Master module always shows the current order.
 
 Everything runs at 2× oversampling internally; the extra latency is reported to your
 host automatically, so tracks stay aligned.
@@ -109,10 +145,10 @@ changes the *shape* of the sound far more than the loudness.
 | **Sag** | 0–100 % (30 %) | The supply giving way under load. Gain drops and bias goes colder as the signal rises: compression, bloom, and a stage that pushes back. |
 | **Tone** | 0–100 % (40 %) | The output transformer. Iron bump below 100 Hz, loss at the very top (19 kHz down to 6.5 kHz), and the core rounding off what's still too big for it. |
 | **Mix** | 0–100 % (100 %) | Parallel blend against the dry signal. |
-| **Output** | Input / Output (Input) | *Input* puts the valve first in the chain; *Output* puts it last, after the spring. |
+| **At Input / At Output** | (At Input) | *At Input* puts the valve first in the chain; *At Output* (lit) puts it last, after the spring. |
 | **Echo Amp** | (On) | Hands the same valve curve to the tape machine's record amplifier, scaled by Drive. Off restores the original solid-state record amp. |
 
-The **glow** lamp next to the knobs shows how hard the valve is actually working — a
+The drawn **12AX7** at the right of the module glows with how hard the valve is actually working — a
 useful thing to watch when Sag is doing its job.
 
 ---
@@ -125,7 +161,7 @@ character comes from termination and core saturation, not resonance.
 | Control | Range (default) | What it does |
 |---|---|---|
 | **Frequency** | steps 1–11 (1) | Eleven switch positions. See the table below. |
-| **Type** | A / B (A) | Capacitor bank. A is the classic broad sweep; B sits lower and tighter. |
+| **Bank A / Bank B** | A / B (A) | Capacitor bank. A is the classic broad sweep; B sits lower and tighter. |
 | **Impedance** | 0–100 % (35 %) | Termination. At 0 % the network is properly terminated and flat; open it up and the corner lifts by several dB. This peak is the sound of the hardware. |
 | **Magnetism** | 0–100 % (30 %) | How hard the inductor cores saturate. Signal level pushes the corner upward and generates harmonics. |
 | **Character** | 0–100 % (25 %) | Non-linearity in the damping path — adds harmonic content (even and odd) independent of the core. |
@@ -161,10 +197,10 @@ saturation, so long tails get darker and thicker rather than louder.
 | Control | Range (default) | What it does |
 |---|---|---|
 | **Time** | 20–2000 ms (375 ms) | Tape delay. Changing it drags the transport, so pitch bends on the way — as tape does. |
-| **Sync / Free** | (Free) | Lock Time to the host tempo using the Division selector. |
+| **Sync** | (Free) | Lock Time to the host tempo: the Time knob becomes a Division menu. |
 | **Division** | 1/16 – 1/1 (1/4) | Note length when synced. Includes triplet (T) and dotted (.) values. |
 | **Feedback** | 0–100 % (34 %) | Loop regeneration. Unity gain sits at 80 % — above that the machine self-oscillates on purpose, limiting into the record amp instead of exploding. |
-| **Send** | Dub / Held (Dub) | *Dub* feeds the input into the machine. *Held* closes the door: the input stops, but whatever is on the loop keeps circulating. Throw a snare in, then hold it. |
+| **Dub Send / Held** | (Dub Send) | *Dub Send* (lit) feeds the input into the machine. *Held* closes the door: the input stops, but whatever is on the loop keeps circulating. Throw a snare in, then hold it. |
 | **Input** | 0–100 % (57 %) | Level into the record amp. Push it to saturate the tape harder. |
 | **Output** | 0–100 % (60 %) | Level out of the machine. |
 | **Hiss** | 0–100 % (18 %) | Tape noise, recorded *to* the tape — it recirculates and builds with feedback instead of sitting on top. |
@@ -183,12 +219,12 @@ along with the sweep. Modulation is shared by both channels, so the stereo image
 
 | Control | Range (default) | What it does |
 |---|---|---|
-| **LFO On** | (Off) | Enables the LFO. |
+| **LFO** | (Off) | Enables the LFO. |
 | **Shape** | Sine / Triangle / Saw Down / Square / S+H (Sine) | Square and sample-and-hold are lightly smoothed: the corner snaps, the zipper doesn't. |
 | **Rate** | 0.02–20 Hz (0.8 Hz) | Free-running speed. |
-| **Sync / Free** | (Free) | Lock the rate to the host tempo; synced sweeps re-align to the bar. |
+| **Sync** | (Free) | Lock the rate to the host tempo (the Rate knob becomes a Division menu); synced sweeps re-align to the bar. |
 | **Division** | 1/16 – 1/1 (1/2) | Note length when synced. |
-| **Depth** | ±3 oct (0) | How far the dial travels. Negative inverts the sweep. |
+| **LFO Depth** | ±3 oct (0) | How far the dial travels. Negative inverts the sweep. |
 
 ### Envelope follower
 
@@ -217,15 +253,15 @@ reverbs never produce.
 
 ---
 
-## 9. Global
+## 9. Master & global
 
 | Control | Range (default) | What it does |
 |---|---|---|
-| **Output** | −24 to +12 dB (0 dB) | Final level trim. |
+| **Output** | −24 to +12 dB (0 dB) | Final level trim — the black knob in the Master module. |
 | **Bypass** | (Off) | True bypass of the whole plug-in. |
 
-Each of the three sections also has its own **On** switch, so OLIVERB can serve as just
-a filter, just an echo, or just a spring.
+Each of the four processing modules also has its own on switch, so OLIVERB can serve as
+just a valve, just a filter, just an echo, or just a spring.
 
 ---
 
@@ -253,10 +289,10 @@ a filter, just an echo, or just a spring.
 ## 11. Techniques
 
 - **Valve as a bus tool.** Load *Valve Warmth*. Drive 30–50 %, Bias 60 %, Sag 20 %: glue
-  and weight without obvious distortion. Watch the glow — it should flicker, not burn.
+  and weight without obvious distortion. Watch the 12AX7 — it should flicker, not burn.
 - **Pushed preamp.** Drive past 70 % with Sag up: the stage compresses into itself and
   blooms after transients. Bias hot for thickness, cold for a cleaner crunch.
-- **Valve at the back.** Flip *Output* so the valve sits after the spring: echo tails and
+- **Valve at the back.** Light *At Output* so the valve sits after the spring: echo tails and
   splashes get rounded off by the same tube, and hot feedback stops sounding digital.
 - **The dub throw.** Feedback high, Mix high, Send on *Dub*. Un-mute (or hot-cue) one
   hit — a snare, a vocal word — then flip Send to *Held*. The hit circulates and decays
@@ -282,6 +318,7 @@ a filter, just an echo, or just a spring.
 | Plug-in doesn't appear in the DAW | Rescan plug-ins. Confirm the `.vst3` is in the system VST3 folder (§1). On Apple-silicon Macs check the DAW isn't running in Rosetta with an arm64-only scan cache. |
 | macOS blocks the installer or plug-in | Right-click → Open on the `.pkg`, or clear quarantine with the `xattr` command in §1. |
 | Windows SmartScreen warning | More info → Run anyway. The installer is unsigned, not unsafe. |
+| Window too big or too small | Drag the bottom-right corner: 60 % to 150 %. |
 | Sound is late / flamming when bypassed elsewhere | OLIVERB reports its 2× oversampling latency to the host; enable your DAW's plug-in delay compensation. |
 | Echo tail never dies | Feedback is at or above 80 % (unity). That's a feature — pull it down or flip Send to *Dub* with no input. |
 | Output slammed after big dial moves | Open Impedance + hot echo feedback genuinely adds level. Use the filter **Gain** or global **Output** trim. The output is hard-limited at the end of the chain, so it cannot run away. |

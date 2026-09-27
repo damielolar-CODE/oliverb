@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OLIVERB MK II — Quick Guide</title>
+<!--
+  Source for docs/OLIVERB-QuickGuide.pdf (must stay ONE A4 page). Print with headless Chrome:
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer \
+      --print-to-pdf=docs/OLIVERB-QuickGuide.pdf "file://$PWD/docs/manual-src/OLIVERB-QuickGuide.html"
+-->
+<style>
+@font-face { font-family: "Oswald"; src: url("../../Resources/ui/Oswald.ttf") format("truetype"); font-weight: 200 700; }
+@font-face { font-family: "Bebas Neue"; src: url("../../Resources/ui/BebasNeue.ttf") format("truetype"); }
+@font-face { font-family: "Space Mono"; src: url("../../Resources/ui/SpaceMono.ttf") format("truetype"); }
+:root {
+  --ink: #221a17; --body: #2e2623; --dim: #7a6b62; --rule: #ddd2c6; --rule-strong: #c9b9a8;
+  --oxblood: #7A231D; --plate: #2C1B19; --cream: #EDE0D0; --brass: #A67C3D; --brass-light: #D2AE6C;
+  --valve: #D9803A; --filter: #C8453A; --echo: #CDAE3C; --mod: #9098DA; --spring: #3F9A64; --master: #26201d;
+}
+@page { size: A4; margin: 10mm 11mm 9mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; background: #fff; color: var(--body); font: 7.9pt/1.36 Charter, Georgia, serif; }
+b { color: var(--ink); }
+p { margin: 0 0 1.4mm; }
+code { font-family: Menlo, monospace; font-size: 6.8pt; background: #f4eee7; border-radius: 2px; padding: 0 .8mm; white-space: nowrap; }
+.page { height: 277mm; display: flex; flex-direction: column; overflow: hidden; }
+
+/* top band */
+.band { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 6mm; padding: 3.4mm 8mm 3.2mm;
+  border-radius: 2mm; border-bottom: 2.5px solid var(--brass); color: var(--cream);
+  background: linear-gradient(90deg, #6b4a2e 0, #7a5334 1.2mm, #3b2616 3mm, transparent 3mm),
+              linear-gradient(270deg, #6b4a2e 0, #7a5334 1.2mm, #3b2616 3mm, transparent 3mm),
+              radial-gradient(120% 200% at 15% 0%, #3a2421 0, #2a1917 55%, #1f1311 100%); }
+.band h1 { margin: 0; font: 400 25pt/1 "Bebas Neue", "Oswald", sans-serif; letter-spacing: .03em; }
+.band h1 span { font: 500 9pt "Oswald", sans-serif; letter-spacing: .26em; color: var(--brass-light); margin-left: 2mm; vertical-align: .5em; }
+.band .qg { font: 500 7.4pt "Oswald", sans-serif; letter-spacing: .26em; text-transform: uppercase; color: var(--brass-light); }
+.band .tag { font: italic 8.6pt/1.35 Charter, Georgia, serif; color: #e6d8c8; text-align: right; }
+
+.cols { display: grid; grid-template-columns: 92mm 1fr; gap: 6mm; margin-top: 4mm; flex: 1; min-height: 0; }
+h2 { font: 600 8.2pt "Oswald", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--oxblood);
+  margin: 0 0 1.6mm; padding-bottom: 1mm; border-bottom: 1px solid var(--rule-strong); }
+.col > section { margin-bottom: 3mm; }
+
+/* faceplate + callouts */
+.fig { position: relative; }
+.fig img { display: block; width: 100%; border-radius: 1.2mm; box-shadow: 0 .4mm 1.4mm rgba(40,20,15,.4); }
+.b { position: absolute; transform: translate(-50%, -50%); width: 4.1mm; height: 4.1mm; border-radius: 50%;
+  background: var(--brass); color: #fff; border: .35mm solid #f3e6cf; box-shadow: 0 .25mm .8mm rgba(0,0,0,.6);
+  font: 600 6.2pt/3.4mm "Oswald", sans-serif; text-align: center; }
+.ghost { position: absolute; border: .3mm dashed #E8952E; border-radius: .8mm; }
+.legend { list-style: none; margin: 2mm 0 0; padding: 0; columns: 2; column-gap: 3mm; font-size: 7.2pt; line-height: 1.3; }
+.legend li { break-inside: avoid; display: flex; gap: 1.6mm; margin-bottom: .7mm; white-space: nowrap; }
+.legend .n { flex: none; width: 3.4mm; height: 3.4mm; border-radius: 50%; background: var(--brass); color: #fff;
+  font: 600 5.6pt/3.4mm "Oswald", sans-serif; text-align: center; margin-top: .2mm; }
+
+.mods { list-style: none; margin: 0; padding: 0; font-size: 7.6pt; line-height: 1.36; }
+.mods li { margin-bottom: 1mm; padding-left: 4mm; position: relative; }
+.mods li::before { content: ""; position: absolute; left: 0; top: 1.05mm; width: 2.4mm; height: 2.4mm; border-radius: 50%; background: var(--c); box-shadow: inset 0 -.3mm .5mm rgba(0,0,0,.35); }
+.mods .k { font: 600 7pt "Oswald", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+
+table { width: 100%; border-collapse: collapse; }
+table.steps { font: 6.9pt "Space Mono", Menlo, monospace; }
+table.steps th { font: 600 6pt "Oswald", sans-serif; letter-spacing: .14em; color: var(--dim); text-align: right; padding: 0 0 .8mm; border-bottom: 1px solid var(--rule-strong); }
+table.steps td { text-align: right; padding: .9mm 0; border-bottom: .5px solid var(--rule); }
+table.steps th:first-child, table.steps td:first-child { text-align: left; font-family: "Oswald", sans-serif; font-weight: 600; color: var(--ink); letter-spacing: .05em; }
+
+table.two td { padding: 1mm 2mm 1mm 0; border-bottom: .5px solid var(--rule); vertical-align: top; font-size: 7.6pt; line-height: 1.34; }
+table.two td:first-child { font-weight: 700; color: var(--ink); width: 23mm; white-space: nowrap; }
+
+.flow svg { width: 100%; height: auto; display: block; }
+ol { margin: 0; padding-left: 4.2mm; }
+ol li { margin-bottom: .8mm; }
+.numbers { background: #f7f1ea; border-left: 2px solid var(--brass); padding: 1.6mm 3mm; font-size: 7.5pt; line-height: 1.36; margin-top: 1.6mm; }
+.numbers b.h { font-family: "Oswald", sans-serif; letter-spacing: .1em; text-transform: uppercase; font-size: 7pt; color: var(--oxblood); margin-right: 1mm; }
+.ui-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; font-size: 7.4pt; line-height: 1.36; }
+.ui-notes div { background: #f7f1ea; border-top: 2px solid var(--brass); padding: 1.6mm 2.4mm; }
+.ui-notes h3 { font: 600 6.6pt "Oswald", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--oxblood); margin: 0 0 .8mm; }
+
+footer { display: flex; justify-content: space-between; border-top: 1px solid var(--rule-strong); padding-top: 1.6mm; margin-top: 2mm;
+  font: 6.1pt "Oswald", sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #9a8a80; white-space: nowrap; gap: 4mm; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="band">
+    <h1>OLIVERB <span>MK II</span></h1>
+    <div class="qg">Quick guide &middot; v2.1.0</div>
+    <div class="tag">Valve preamp &middot; passive filter &middot; tape echo &middot; spring tank<br>&mdash; the dub console in one plug-in.</div>
+  </header>
+
+  <div class="cols">
+    <!-- ============================== LEFT -->
+    <div class="col">
+      <section>
+        <h2>The faceplate</h2>
+        <div class="fig">
+          <img src="img/interface-2x.jpg" alt="OLIVERB faceplate">
+          <span class="ghost" style="left:55.6%;top:2.0%;width:9.7%;height:2.4%"></span>
+          <span class="b" style="left:60.5%;top:3.2%">1</span>
+          <span class="b" style="left:66.4%;top:3.2%">2</span>
+          <span class="b" style="left:87.9%;top:3.2%">3</span>
+          <span class="b" style="left:17.4%;top:11.0%">4</span>
+          <span class="b" style="left:86.4%;top:8.6%">5</span>
+          <span class="b" style="left:22.6%;top:33.0%">6</span>
+          <span class="b" style="left:83.6%;top:33.6%">7</span>
+          <span class="b" style="left:17.4%;top:59.8%">8</span>
+          <span class="b" style="left:57.7%;top:73.2%">9</span>
+          <span class="b" style="left:66.3%;top:74.0%">10</span>
+          <span class="b" style="left:34.4%;top:91.8%">11</span>
+          <span class="b" style="left:70.4%;top:91.9%">12</span>
+          <span class="b" style="left:91.6%;top:90.4%">13</span>
+          <span class="b" style="left:96.9%;top:97.4%">14</span>
+        </div>
+        <ul class="legend">
+          <li><span class="n">1</span><span><b>UPDATE</b> pill (new version out)</span></li>
+          <li><span class="n">2</span><span><b>Preset</b> menu</span></li>
+          <li><span class="n">3</span><span><b>Bypass</b></span></li>
+          <li><span class="n">4</span><span>Valve &middot; <b>At Input/Output</b> &middot; Echo Amp</span></li>
+          <li><span class="n">5</span><span><b>12AX7</b> &mdash; glows with the drive</span></li>
+          <li><span class="n">6</span><span>Big <b>Frequency</b> dial</span></li>
+          <li><span class="n">7</span><span>Filter &middot; <b>Bank A/B</b> &middot; <b>Pre/Post</b></span></li>
+          <li><span class="n">8</span><span>Echo &middot; Sync &middot; <b>Dub Send/Held</b></span></li>
+          <li><span class="n">9</span><span>LFO <b>Shape</b> menu</span></li>
+          <li><span class="n">10</span><span><b>Spring</b> on/off</span></li>
+          <li><span class="n">11</span><span>L/R output <b>meters</b></span></li>
+          <li><span class="n">12</span><span>Live <b>chain readout</b></span></li>
+          <li><span class="n">13</span><span><b>Output</b> &minus;24&hellip;+12 dB</span></li>
+          <li><span class="n">14</span><span><b>Resize</b> grip, 60&ndash;150&nbsp;%</span></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>The modules</h2>
+        <ul class="mods">
+          <li style="--c:var(--valve)"><span class="k">Valve</span> &mdash; triode preamp: Drive, Bias (even harmonics), Sag (tube compression), Tone (transformer), Mix. <i>At Output</i> moves it to the end of the chain; <i>Echo Amp</i> puts it inside the tape machine.</li>
+          <li style="--c:var(--filter)"><span class="k">Filter &middot; Big Dial</span> &mdash; 11-step, 18 dB/oct passive high-pass + Impedance, Magnetism, Character, Dynamics, Artefacts, Gain.</li>
+          <li style="--c:var(--echo)"><span class="k">Echo &middot; Two Track</span> &mdash; Time, Feedback, Input, Output, Hiss, Mix, Wear. Sync swaps Time for a note division.</li>
+          <li style="--c:var(--mod)"><span class="k">Mod &middot; LFO / Envelope</span> &mdash; Rate, LFO Depth, Env Depth, Sens, Speed: both steer the big dial &plusmn;3 octaves.</li>
+          <li style="--c:var(--spring)"><span class="k">Spring Tank</span> &mdash; Spring (amount), Tension (decay), Drive (crash).</li>
+          <li style="--c:var(--master)"><span class="k">Master</span> &mdash; meters, chain readout, Output.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Dial positions (Hz)</h2>
+        <table class="steps">
+          <thead><tr><th>Step</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead>
+          <tbody>
+            <tr><td>Bank A</td><td>70</td><td>100</td><td>150</td><td>220</td><td>330</td><td>500</td><td>750</td><td>1.1k</td><td>1.8k</td><td>3.5k</td><td>7.5k</td></tr>
+            <tr><td>Bank B</td><td>50</td><td>80</td><td>120</td><td>170</td><td>240</td><td>350</td><td>520</td><td>800</td><td>1.3k</td><td>2.4k</td><td>5.0k</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Install</h2>
+        <p><b>macOS:</b> run <code>OLIVERB-macOS.pkg</code> (right-click &rarr; Open the first time).
+          <b>Windows:</b> run <code>OLIVERB-Windows-Setup.exe</code> (SmartScreen: More info &rarr; Run anyway).
+          <b>Linux:</b> copy <code>OLIVERB.vst3</code> to <code>~/.vst3/</code>. Then rescan plug-ins &mdash; it's under
+          <b>Deestech</b>. Installs over v1 and v2.0; 2.1.0 changes only the faceplate.</p>
+      </section>
+    </div>
+
+    <!-- ============================== RIGHT -->
+    <div class="col">
+      <section class="flow">
+        <h2>Signal flow</h2>
+        <svg viewBox="0 0 440 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Signal chain">
+          <defs>
+            <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6f625a"/></marker>
+            <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#C0702C"/></marker>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#B23A2E"/></marker>
+            <marker id="al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6E76C4"/></marker>
+          </defs>
+          <g font-family="Oswald, sans-serif" font-size="8.5" letter-spacing="1.4" text-anchor="middle" font-weight="600">
+            <text x="10" y="50" font-family="Charter, Georgia, serif" font-style="italic" font-weight="400" letter-spacing="0" font-size="8.5" fill="#4a3f39">in</text>
+            <line x1="19" y1="47" x2="29" y2="47" stroke="#6f625a" stroke-width="1.1" marker-end="url(#ag)"/>
+            <rect x="30" y="35" width="62" height="24" rx="2.5" fill="#FBF3EA" stroke="#C0702C" stroke-width="1.3"/><text x="61" y="50" fill="#A55A1E">VALVE</text>
+            <line x1="92" y1="47" x2="106" y2="47" stroke="#6f625a" stroke-width="1.1" marker-end="url(#ag)"/>
+            <rect x="107" y="35" width="62" height="24" rx="2.5" fill="#FBF1EE" stroke="#B23A2E" stroke-width="1.3"/><text x="138" y="50" fill="#9E2F24">FILTER</text>
+            <line x1="169" y1="47" x2="183" y2="47" stroke="#6f625a" stroke-width="1.1" marker-end="url(#ag)"/>
+            <rect x="184" y="35" width="62" height="24" rx="2.5" fill="#FBF7E6" stroke="#B0922A" stroke-width="1.3"/><text x="215" y="50" fill="#8C7218">ECHO</text>
+            <line x1="246" y1="47" x2="260" y2="47" stroke="#6f625a" stroke-width="1.1" marker-end="url(#ag)"/>
+            <rect x="261" y="35" width="62" height="24" rx="2.5" fill="#EEF7F0" stroke="#3F9A64" stroke-width="1.3"/><text x="292" y="50" fill="#2E7A4C">SPRING</text>
+            <line x1="323" y1="47" x2="373" y2="47" stroke="#6f625a" stroke-width="1.1" marker-end="url(#ag)"/>
+            <rect x="374" y="35" width="60" height="24" rx="2.5" fill="#231614"/><text x="404" y="50" fill="#EDE0D0">OUT</text>
+          </g>
+          <g font-family="Oswald, sans-serif" font-size="6.2" letter-spacing="1" fill="none">
+            <path d="M61,34 C85,6 190,6 211,33" stroke="#C0702C" stroke-width="1" stroke-dasharray="3.5 2.5" marker-end="url(#aa)"/>
+            <text x="136" y="10" fill="#A55A1E" text-anchor="middle" stroke="none">ECHO AMP</text>
+            <path d="M138,60 V76 H340 V50" stroke="#B23A2E" stroke-width="1" stroke-dasharray="3.5 2.5" marker-end="url(#ar)"/>
+            <text x="250" y="72" fill="#9E2F24" text-anchor="middle" stroke="none">FILTER POST</text>
+            <path d="M61,60 V94 H356 V50" stroke="#C0702C" stroke-width="1" stroke-dasharray="3.5 2.5" marker-end="url(#aa)"/>
+            <text x="262" y="90" fill="#A55A1E" text-anchor="middle" stroke="none">VALVE AT OUTPUT: LAST IN THE CHAIN</text>
+            <path d="M26,110 H150 V62" stroke="#6E76C4" stroke-width="1.1" marker-end="url(#al)"/>
+            <text x="12" y="112.5" fill="#5A62B0" text-anchor="middle" stroke="none">MOD</text>
+          </g>
+        </svg>
+        <p style="margin-top:1.4mm">Valve first (default) colours everything after it; <b>At Output</b> makes it a master tube stage after the
+          spring. Filter <b>Pre</b>: repeats inherit the dial &mdash; sweeps drag the tail. <b>Post</b>: the filter carves the
+          finished signal, tails included. The Master <b>chain readout</b> always shows the current order.</p>
+      </section>
+
+      <section>
+        <h2>First sound in 60 seconds</h2>
+        <ol>
+          <li>Insert on a drum loop; load preset <b>Waterhouse Rockers</b>.</li>
+          <li>Turn valve <b>Drive</b> up, watch the 12AX7 glow: thicker, compressed, not louder.</li>
+          <li>Sweep the big <b>Frequency</b> dial &mdash; hear the corner peak and the clacks.</li>
+          <li>Push <b>Feedback</b> past 80&nbsp;%; the repeats build toward self-oscillation.</li>
+          <li>Tap <b>Dub Send</b> to <i>Held</i> &mdash; the input stops, the loop keeps circling. Dub-out. Tap it back.</li>
+        </ol>
+        <div class="numbers"><b class="h">The numbers that matter</b> Valve drive up to +36&nbsp;dB, level-compensated;
+          zero drive &asymp; 1&nbsp;% 2nd harmonic. Feedback unity = 80&nbsp;% (beyond it the machine self-oscillates, safely).
+          Echo time 20&ndash;2000&nbsp;ms, tape-style pitch bend on changes. Mod range &plusmn;3 octaves around the dial.
+          Output is hard-limited &mdash; it cannot run away.</div>
+      </section>
+
+      <section>
+        <h2>The six moves</h2>
+        <table class="two">
+          <tr><td>Tube glue</td><td>Preset <i>Valve Warmth</i>. Drive 30&ndash;50&nbsp;%, Bias 60&nbsp;%, Sag 20&nbsp;%: weight without obvious distortion. Sag up for bloom; <i>At Output</i> to round off the tails.</td></tr>
+          <tr><td>Dub throw</td><td>Feedback + Mix high. Un-mute one hit, tap Dub Send to <i>Held</i>, let it circle and decay.</td></tr>
+          <tr><td>Ride the dial</td><td>Filter <i>Pre</i>, sweep Frequency mid-tail &mdash; every repeat bends with you. Add Artefacts for the clack.</td></tr>
+          <tr><td>Pitch-bend echo</td><td>Automate Time: small moves warble, big jumps dive-bomb.</td></tr>
+          <tr><td>Siren</td><td>Feedback past unity, no input. Tune with Time, filter with the dial, crash the spring.</td></tr>
+          <tr><td>Auto-wah</td><td>Env Depth positive, step 4&ndash;6, Impedance up. Negative depth ducks instead &mdash; an ungate.</td></tr>
+        </table>
+      </section>
+
+
+      <section>
+        <div class="ui-notes">
+          <div><h3>Resize (14)</h3>Drag the corner: 60&ndash;150&nbsp;% of 980&thinsp;&times;&thinsp;930, sharp at any size.</div>
+          <div><h3>Update notice (1)</h3>An amber <b>UPDATE x.y.z</b> pill: click for notes, Download, or Skip.</div>
+        </div>
+      </section>
+      <section>
+        <h2>If something's wrong</h2>
+        <table class="two">
+          <tr><td>Not in the DAW</td><td>Rescan; check the VST3 folder; macOS: clear quarantine (manual §2).</td></tr>
+          <tr><td>Thicker than v1</td><td>That's the valve at its default 35&nbsp;%. Switch it off for the v1 sound.</td></tr>
+          <tr><td>Tail never dies</td><td>Feedback &ge; 80&nbsp;% &mdash; that's the instrument. Pull it down.</td></tr>
+          <tr><td>Too loud</td><td>Open Impedance + hot feedback adds real level: trim filter Gain or Output.</td></tr>
+        </table>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <span>OLIVERB MK II v2.1.0 &middot; MIT &middot; github.com/damielolar-CODE/oliverb &middot; full manual: docs/OLIVERB-Manual.pdf</span>
+    <span>Hardware names are descriptive only; no affiliation implied.</span>
+  </footer>
+</div>
+</body>
+</html>

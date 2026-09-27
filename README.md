@@ -8,10 +8,10 @@ as the tape machine's record amplifier. Every original section is unchanged.
 
 VST3 / AU / Standalone. macOS, Windows, Linux. C++17 + JUCE 8.
 
-**[User manual](docs/MANUAL.md)** — installation, every control, presets, dub techniques.
+**[User manual](docs/MANUAL.md)** — installation, every control, presets, dub techniques. Print versions: [full manual (PDF)](docs/OLIVERB-Manual.pdf) · [one-page quick guide (PDF)](docs/OLIVERB-QuickGuide.pdf).
 
 **Update notices (2.0.1+):** OLIVERB checks deestechholdings.com/updates.json at most once a day while its window is
-open and shows an orange UPDATE pill next to the MK II legend when a newer version is out (click → notes, DOWNLOAD,
+open and shows an orange UPDATE pill just left of the preset menu when a newer version is out (click → notes, DOWNLOAD,
 SKIP THIS VERSION). Nothing is sent but a plain request for the version list; no audio-thread work.
 
 ![OLIVERB interface](docs/interface.png)
