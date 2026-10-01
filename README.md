@@ -6,7 +6,7 @@ Version 2 adds a **triode valve stage** — even-harmonic saturation with bias, 
 and an output transformer — in front of or behind the chain, and the same valve can serve
 as the tape machine's record amplifier. Every original section is unchanged.
 
-VST3 / AU / Standalone. macOS, Windows, Linux. C++17 + JUCE 8.
+VST3 / AU / Standalone. macOS 11+ (Apple silicon + Intel), Windows, Linux. C++17 + JUCE 8.
 
 **[User manual](docs/MANUAL.md)** — installation, every control, presets, dub techniques. Print versions: [full manual (PDF)](docs/OLIVERB-Manual.pdf) · [one-page quick guide (PDF)](docs/OLIVERB-QuickGuide.pdf).
 

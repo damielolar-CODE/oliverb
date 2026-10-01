@@ -329,7 +329,7 @@ just a valve, just a filter, just an echo, or just a spring.
 
 - **Valve:** single-ended triode model, unity-normalised asymmetric transfer, +36 dB drive range, level-compensated, supply sag, transformer voicing
 - **Formats:** VST3, Audio Unit (macOS), Standalone application
-- **Platforms:** macOS 10.13+ (universal: Apple silicon + Intel), Windows 10+ (64-bit), Linux
+- **Platforms:** macOS 11+ (universal: Apple silicon + Intel), Windows 10+ (64-bit), Linux
 - **Processing:** 32-bit float, 2× oversampled (half-band polyphase IIR), latency-compensated
 - **Filter:** third-order (18 dB/oct) passive constant-k model, TPT state-variable core, stable under audio-rate modulation
 - **Echo:** 20–2000 ms, wow & flutter, per-pass HF loss, in-loop record-amp saturation
