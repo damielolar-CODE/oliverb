@@ -50,7 +50,16 @@ jobs:
           key: juce-${{ runner.os }}-8.0.6
 
       - name: Configure
+        if: runner.os != 'macOS'
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DWH_COPY_PLUGIN=OFF
+
+      # macOS: spell out universal + macOS 11 so the result never depends on the runner's own SDK/arch
+      # (2.1.0 came out of macos-14 as arm64-only with a macOS 14 minimum).
+      - name: Configure (macOS universal, macOS 11+)
+        if: runner.os == 'macOS'
+        run: >
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DWH_COPY_PLUGIN=OFF
+          "-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
 
       - name: Build plug-in
         run: cmake --build build --config Release --parallel 3
@@ -73,6 +82,24 @@ jobs:
             [ -d "$d/AU" ]   && cp -R "$d/AU/"*   ../../dist/ 2>/dev/null || true
           done
           ls -R ../../dist
+
+      - name: Check macOS binaries (universal, macOS 11 minimum)
+        if: runner.os == 'macOS'
+        run: |
+          fail=0; n=0
+          while IFS= read -r f; do
+            n=$((n+1))
+            archs=$(lipo -archs "$f")
+            echo "$f: $archs"
+            [ "$(echo $archs | tr ' ' '\n' | sort | xargs)" = "arm64 x86_64" ] || { echo "::error::$f is '$archs', expected arm64 x86_64"; fail=1; }
+            for a in $archs; do
+              m=$(otool -arch $a -l "$f" | awk '/LC_BUILD_VERSION/{f=1} f&&/minos/{print $2; exit}')
+              echo "  $a minos $m"
+              [ "$m" = "11.0" ] || { echo "::error::$f ($a) minos is '$m', expected 11.0"; fail=1; }
+            done
+          done < <(find dist -type f -perm -u+x -path '*/Contents/MacOS/*')
+          [ $n -gt 0 ] || { echo "::error::no plug-in binaries found in dist/"; fail=1; }
+          exit $fail
 
       - name: Build macOS installer (.pkg)
         if: runner.os == 'macOS'

@@ -1,14 +1,35 @@
 cmake_minimum_required(VERSION 3.22)
 
+# -----------------------------------------------------------------------------
+# macOS: universal (Apple silicon + Intel) and macOS 11 minimum.
+#
+#   These MUST be set BEFORE project(). project() creates empty cache entries
+#   for both, and a later non-FORCE set(... CACHE ...) is then a silent no-op:
+#   the compiler falls back to the build machine's own SDK and architecture.
+#   That is how 2.1.0 shipped arm64-only with a macOS 14 minimum (built on the
+#   macos-14 runner). A -D on the command line still wins.
+# -----------------------------------------------------------------------------
+if(APPLE)
+    if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Minimum macOS version" FORCE)
+    endif()
+    if(NOT CMAKE_OSX_ARCHITECTURES)
+        set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Universal binary" FORCE)
+    endif()
+endif()
+
 project(Oliverb VERSION 2.1.0 LANGUAGES C CXX)
+
+if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+    message(FATAL_ERROR "OLIVERB: CMAKE_OSX_DEPLOYMENT_TARGET is empty - the plug-in would only load on the "
+                        "build machine's macOS. Configure with -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0.")
+endif()
+if(APPLE)
+    message(STATUS "OLIVERB: macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}+ (${CMAKE_OSX_ARCHITECTURES})")
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if(APPLE)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS version")
-    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Universal binary")
-endif()
 
 # -----------------------------------------------------------------------------
 # JUCE
